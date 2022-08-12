@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Roboto&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="./style/style.css">
+    <link rel="stylesheet" href="./contact.css">
+    <title>Eden</title>
+</head>
+<body>
+    <section id="nav-form" class="form-section">
+        <div id="form-container">
+            <h2>Contact Us</h2>
+            <form id="contact-me" action="index.html" onsubmit="return validateForm()" method="post">  
+                <input type="email" name="email" id="email" placeholder="Enter your email">
+                <input type="text" name="name" id="name" placeholder="Enter your name">
+                <textarea name="message" id="message" cols="30" rows="10" placeholder="Enter your message here"></textarea>
+                <input id="submit" type="submit" value="Send">
+            </form>
+        </div>
+    </section>
+    <script src="./script.js"></script>
+</body>
+</html>
