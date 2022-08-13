@@ -12,7 +12,6 @@ const onClickLoginEventHandler = () => {
   const userName = document.getElementById(Uname).value;
   const password = document.getElementById(Pass).value;
   fetch(`/register/${userName}`, {params:{userName:userName, password:password}})
-
 }
 
   
