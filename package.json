@@ -12,6 +12,7 @@
   "dependencies": {
     "config": "^3.3.7",
     "express": "^4.18.1",
+    "express-flash": "github:RGBboy/express-flash",
     "mongoose": "^6.5.0"
   }
 }
