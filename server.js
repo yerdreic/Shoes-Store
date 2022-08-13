@@ -19,8 +19,7 @@ app.use(express.static(path.join(__dirname)));
 
 //Connecting to MongoDB
 mongoose.connect('mongodb+srv://evilker:Evilker6998266@cluster0.baets.mongodb.net/?retryWrites=true&w=majority').then(()=>console.log('Database Connected')
-).catch(err=>{
-    console.log(err);
+).catch(err=>{ console.log(err);
 });
 
 
