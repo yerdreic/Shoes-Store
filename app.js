@@ -53,4 +53,3 @@ const onClickLoginEventHandler = () => {
   
   //before loading eny page, we want to set the navbar correctly according to if user is logged in
   onLoadEventHandler();
-  
