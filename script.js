@@ -1,3 +1,4 @@
+
 //form mandatory values
 function validateForm() {
     let x = document.forms["contact-me"]["name"].value;
@@ -7,11 +8,3 @@ function validateForm() {
     }
     return true;
   }
-
-const onClickLoginEventHandler = () => {
-  const userName = document.getElementById(Uname).value;
-  const password = document.getElementById(Pass).value;
-  fetch(`/register/${userName}`, {params:{userName:userName, password:password}})
-}
-
-  

@@ -1,7 +1,11 @@
-body{margin-top:20px;}
+body {
+    margin-top:20px;
+}
+
 select.form-control:not([size]):not([multiple]) {
     height: 44px;
 }
+
 select.form-control {
     padding-right: 38px;
     background-position: center right 17px;
@@ -9,9 +13,11 @@ select.form-control {
     background-repeat: no-repeat;
     background-size: 9px 9px;
 }
+
 .form-control:not(textarea) {
     height: 44px;
 }
+
 .form-control {
     padding: 0 18px 3px;
     border: 1px solid #dbe2e8;

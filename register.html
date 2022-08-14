@@ -1,26 +1,37 @@
-<!DOCTYPE html>    
-<html>    
-<head>    
-    <title>Register Form</title>    
-    <link rel="stylesheet" type="text/css" href="login.css">   
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Register Form</title>
+    <link rel="stylesheet" type="text/css" href="login.css">
+    <link rel="stylesheet" href="./navbar.css">
+    <script type="text/javascript" src="app.js" defer></script>
     <script type="text/javascript" src="script.js"></script>
-</head>    
-<body>    
-    <h2>Register Page</h2><br>    
-    <div class="login">    
-    <form id="login" method="get">    
-        <label><b>User Name     
-        </b>    
-        </label>    
-        <input type="text" name="Uname" id="Uname" placeholder="Username">    
-        <br><br>    
-        <label><b>Password     
-        </b>    
-        </label>    
-        <input type="Password" name="Pass" id="Pass" placeholder="Password">    
-        <br><br>    
-        <input type="button" name="log" id="log" value="Click here to register" onclick="onClickLoginEventHandler">       
-    </form>     
-</div>    
-</body>    
-</html>     
+</head>
+
+<body>
+    <h2>Register Page</h2><br>
+    <div class="login">
+        <div class="navbar">
+            <nav id="nav">
+                <ul>
+                    <li><a href="./index.html">Home</a></li>
+                    <li><a href="./catalog.html">Catalog</a></li>
+                    <li><a href="./about.html">About Us</a></li>
+                    <li><a href="./contact.html">Contact Us</a></li>
+                </ul>
+            </nav>
+        </div>
+        <form id="login" method="get">
+            <label><b>Email address</b></label>
+            <input type="text" name="Uname" id="Uname" placeholder="Email address">
+            <br><br>
+            <label><b>Password</b></label>
+            <input type="Password" name="Pass" id="Pass" placeholder="Password">
+            <br><br>
+            <input type="button" name="log" id="log" value="Click here to register" onclick=onClickLoginEventHandler>
+        </form>
+    </div>
+</body>
+
+</html>
