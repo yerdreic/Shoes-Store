@@ -4,18 +4,17 @@ window.addEventListener('load', () => {
     // if user is authenticated:
   //router.get("/isloggedin", (req,res,next) => {
   fetch('/isloggedin').then((res) => {
-    if (res == true) {   //if user is logged in
+    if (res != null) {   //if user is logged in
       const cartLine = document.createElement('li');
       cartLine.innerHTML = '<a href="./cart.html">Cart</a>';
       nav.appendChild(cartLine); 
 
       const logoutLine = document.createElement('li');
-      const logoutText = document.createTextNode("Logout");
-      logoutLine.appendChild(logoutText);
+      logoutLine.innerHTML = '<a href="/logout">Logout</a>';
 
       nav.appendChild(logoutLine);
 
-      logout.addEventListener(onclick, () => {
+      logoutLine.addEventListener(onclick, () => {
         redirect('/logout');
       })
 
@@ -29,9 +28,14 @@ window.addEventListener('load', () => {
   })
 
 const onClickLoginEventHandler = () => {
-  const userName = document.getElementById(Uname).value;
+  const email = document.getElementById(Uname).value;
   const password = document.getElementById(Pass).value;
-  fetch(`/register/${userName}`, {params:{userName:userName, password:password}})
+  fetch(`/login`, {params:{email:email, password:password}})
+}
+const onClickRegisterEventHandler = () => {
+  const email = document.getElementById(Uname).value;
+  const password = document.getElementById(Pass).value;
+  fetch(`/register`, {params:{email:email, password:password}})
 }
 
 const button = document.querySelector('button');

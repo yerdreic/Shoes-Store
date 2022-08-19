@@ -52,13 +52,13 @@ main().catch(console.error);
 //   await client.close();
 // }
 
-async function listDatabases(client) {
-  const databasesList = await client.db().admin().listDatabases();
+// async function listDatabases(client) {
+//   const databasesList = await client.db().admin().listDatabases();
 
-  console.log("Databases:");
-  databasesList.databases.forEach(db => 
-    console.log(client.db.collection.find()));
-};
+//   console.log("Databases:");
+//   databasesList.databases.forEach(db => 
+//     console.log(client.db.collection.find()));
+// };
 
 // const userSchema = new mongoose.Schema({
 //   email: {
@@ -104,62 +104,122 @@ const catalogSchema = new mongoose.Schema({
 const Catalog = mongoose.model("ShoesStore.Products", catalogSchema);
 
 
-async function isloggedin(client, req) {
-  const user = await client.db("ShoesStore").collection("Users").findOne({
-    email: req.body.email,
-    password: req.body.password
-  });
+// async function isloggedin(client, req) {
+//   const user = await client.db("ShoesStore").collection("Users").findOne({
+//     email: req.body.email,
+//     password: req.body.password
+//   });
 
-  if (user == null) {
-    return false;
-  } else {
-    return true;
-  }
-
-}
+//   if (user == null) {
+//     return false;
+//   } else {
+//     return true;
+//   }
+// }
 
 app.use("/catalog", async (req, res) => {
-  const data = await client.db("ShoesStore").collection("Products").find();
-  res.send(data);
+  const data = await client.db("ShoesStore").collection("Products").find().then(result => {
+    let catalog = result.find; //need to edit !!!!
+    res.send(loggedInUserID);;
+    res.send(data);
+});
 })
 
 app.get("/isloggedin", async (req, res) => {
-  const user = await client.db("ShoesStore").collection("Users").findOne({
+  user = {
     email: req.body.email,
     password: req.body.password
-  });
+  }
 
-  res.send(user);
+  const userFromDB = await client.db("ShoesStore").collection("Users").findOne(user).then(result => {
+    let loggedInUserID = result._id;
+    res.send(loggedInUserID);
+  })
+  .catch (err => {
+    res.send(null);
+  }
+  );
 });
 
-app.post("/register/:userName", async (req, res, next) => {
-  //const user = await isloggedin(client);
 
-  const emailExists = client.db("ShoesStore").collection("Users").findOne({email: req.body.email})
-  if (!userExists) {
-} 
-
+app.post("/register", async (req, res, next) => {
+  const emailExists = await client.db("ShoesStore").collection("Users").findOne({email: req.body.email});
 
   if (emailExists) {
     req.flash(
       "error",
-      'Sorry, that name is taken. Maybe you need to <a href="/login">login</a>?'
+      'Sorry, that email is taken. Maybe you need to <a href="/login.html">login</a>?'
     );
-    res.redirect("/register");
-  } else if (req.body.email == "" || req.body.password == "") {
-    req.flash("error", "Please fill out all the fields.");
-    res.redirect("/register");
-  } else
-  client.db("ShoesStore").collection("Users").insertOne(
-    {
-      email: "example@example.com",
-      password: "123456"
+  } else {
+    newUser = {
+      email: req.body.email,
+      password: req.body.password
     }
-  ); 
-  req.flash("info", "Account made, please log in...");
-  res.redirect("/login");
-  next();
-});
+    await client.db("ShoesStore").collection("Users").insertOne({newUser}).then(result => {
+      let loggedInUserID = result.insertedId;
+      res.send(loggedInUserID);
+      res.redirect("/index.html");  
+    }); 
+  };
+})
+
+app.post("/login", async (req, res, next) => {
+
+  user = {
+    email: req.body.email,
+    password: req.body.password
+  }
+
+  const emailExists = await client.db("ShoesStore").collection("Users").findOne(user.email);
+
+  if (user.email == "" || user.password== "") {
+    req.flash("error", "Please fill out all the fields.");
+    res.redirect("/login.html");
+  }
+
+  if (!emailExists) {
+    req.flash(
+      "error",
+      'Sorry, that email does not appear to belong to any registered user. Check your email, or <a href="/register.html">register</a>?'
+    );
+  } else if (emailExists) {
+    const userFromDB = await client.db("ShoesStore").collection("Users").findOne(user).then(result => {
+      let loggedInUserID = result.insertedId;
+      res.send(loggedInUserID);
+      res.redirect("/index.html");
+    })
+    .catch (err => {
+      req.flash("error", "Something went wrong. Please try again.");
+      res.redirect("/login.html");
+    }) ;
+  }
+})
+
+
+ 
+
+
+//   if (emailExists) {
+//     req.flash(
+//       "error",
+//       'Sorry, that name is taken. Maybe you need to <a href="/login">login</a>?'
+//     );
+//     res.redirect("/register");
+//   } else if (req.body.email == "" || req.body.password == "") {
+//     req.flash("error", "Please fill out all the fields.");
+//     res.redirect("/register");
+//   } else
+//   client.db("ShoesStore").collection("Users").insertOne(
+//     {
+//       email: "example@example.com",
+//       password: "123456"
+//     }
+//   ); 
+//   req.flash("info", "Account made, please log in...");
+//   res.redirect("/login");
+//   next();
+// }
+// })
 
 // app.use("/login", async (req, res, next) => {
 //   const user = await User.findOne({
