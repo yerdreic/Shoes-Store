@@ -47,38 +47,6 @@ async function main() {
 
 main().catch(console.error);
 
-//Connecting to MongoDB
-// try {
-//   // Connect to the MongoDB cluster
-//   await client.connect();
-
-//   // Make the appropriate DB calls
-//   await listDatabases(client);
-// } catch (e) {
-//   console.error(e);
-// } finally {
-//   await client.close();
-// }
-
-// async function listDatabases(client) {
-//   const databasesList = await client.db().admin().listDatabases();
-
-//   console.log("Databases:");
-//   databasesList.databases.forEach(db =>
-//     console.log(client.db.collection.find()));
-// };
-
-// const userSchema = new mongoose.Schema({
-//   email: {
-//     type: String,
-//     required: true,
-//   },
-//   password: {
-//     type: String,
-//     required: true,
-//   }
-// });
-
 const userExists = client
   .db("ShoesStore")
   .collection("Users")
@@ -89,8 +57,6 @@ if (!userExists) {
     password: req.body.password,
   });
 }
-
-// const User = mongoose.model("ShoesStore.Users", userSchema);
 
 const catalogSchema = new mongoose.Schema({
   _id: {
@@ -112,30 +78,17 @@ const catalogSchema = new mongoose.Schema({
 
 const Catalog = mongoose.model("ShoesStore.Products", catalogSchema);
 
-// async function isloggedin(client, req) {
-//   const user = await client.db("ShoesStore").collection("Users").findOne({
-//     email: req.body.email,
-//     password: req.body.password
-//   });
-
-//   if (user == null) {
-//     return false;
-//   } else {
-//     return true;
-//   }
-// }
-
-app.use("/catalog", async (req, res) => {
-  const data = await client
-    .db("ShoesStore")
-    .collection("Products")
-    .find()
-    .then((result) => {
-      let catalog = result.find; //need to edit !!!!
-      res.send(loggedInUserID);
-      res.send(data);
-    });
-});
+// app.use("/catalog", async (req, res) => {
+//   const data = await client
+//     .db("ShoesStore")
+//     .collection("Products")
+//     .find()
+//     .then((result) => {
+//       let catalog = result.find; //need to edit !!!!
+//       res.send(loggedInUserID);
+//       res.send(data);
+//     });
+// });
 
 app.get("/isloggedin", async (req, res) => {
   user = {
@@ -184,8 +137,12 @@ app.post("/register", async (req, res, next) => {
       .insertOne({ newUser })
       .then((newUserAfterInsert) => {
         let newUserID = newUserAfterInsert._id;
-        res.cookie("session", { userID: newUserID }, { maxAge: 30 * 60 * 1000 });
-        return res.status(200).json({ newUserWasAdded: true});
+        res.cookie(
+          "session",
+          { userID: newUserID },
+          { maxAge: 30 * 60 * 1000 }
+        );
+        return res.status(200).json({ newUserWasAdded: true });
       });
   }
 });
@@ -221,7 +178,11 @@ app.post("/login", async (req, res, _next) => {
             );
             //rememberme wasn't checked
           } else {
-            res.cookie("session", { userID: loggedInUserID }, { maxAge: 60 * 30 * 1000 });
+            res.cookie(
+              "session",
+              { userID: loggedInUserID },
+              { maxAge: 60 * 30 * 1000 }
+            );
           }
           res.status(200).json({ emailExists: true, passwordExists: true });
         }
@@ -233,89 +194,74 @@ app.post("/login", async (req, res, _next) => {
   }
 });
 
-// //user was not found in db
-// .catch (err => {
-//   //check if email only exists in db - return true
-//   const emailExists = await client.db("ShoesStore").collection("Users").findOne(user.email).then((result => {
-//     req.flash(
-//       "error",
-//       'Sorry, that email is taken. Maybe you need to <a href="/login.html">login</a>?'
-//     );
-//     res.send(true);
-//   })
-//   //email was not found in db - return false
-//   .catch(err => {
-//     req.flash(
-//       "error",
-//       'Sorry, that email does not appear to belong to any registered user. Check your email, or <a href="/register.html">register</a>?'
-//     );
-//     res.send(false);
-//   })
-// );
-// });
+//gadds item to cart for a user
+app.post("/addItemToCart", async (req, res, _next) => {
+  itemName = req.body.itemName;
 
-//   const emailExists = await client.db("ShoesStore").collection("Users").findOne(user.email);
+  try {
+    await client
+      .db("ShoesStore")
+      .collection("Products")
+      .find({ name: itemName })
+      .then((productFromDB) => {
+        console.log("product: ", productFromDB);
+        //add the product to session
+        const currentCart = req.cookies.cart || [];
+        currentCart.push({ itemName });
+        res.cookie(
+          "cart",
+          currentCart,
+          { maxAge: 30 * 60 * 1000 }
+        );
+        res.status(200).json({ productFromDB: productFromDB });
+      });
+  } catch (error) {
+    console.log("ERR: ", error);
+    // email not found / error
+    return res.redirect("/login.html");
+  }
+});
 
-//   if (user.email == "" || user.password== "") {
-//     req.flash("error", "Please fill out all the fields.");
-//     res.redirect("/login.html");
-//   }
+//get items from DB
+app.post("/getItems", async (req, res, _next) => {
+  searchVal = req.body.searchVal;
 
-//   if (!emailExists) {
-//   } else if (emailExists) {
-//     const userFromDB = await client.db("ShoesStore").collection("Users").findOne(user).then(result => {
-//       let loggedInUserID = result.insertedId;
-//       req.cookies["session"] = loggedInUserID;
-//       res.send(loggedInUserID);
-//       res.redirect("/index.html");
-//     })
-//     .catch (err => {
-//       req.flash("error", "Something went wrong. Please try again.");
-//       res.redirect("/login.html");
-//     }) ;
-//   }
-// })
+  try {
+    //user was found in db - return it's id
 
-//   if (emailExists) {
-//     req.flash(
-//       "error",
-//       'Sorry, that name is taken. Maybe you need to <a href="/login">login</a>?'
-//     );
-//     res.redirect("/register");
-//   } else if (req.body.email == "" || req.body.password == "") {
-//     req.flash("error", "Please fill out all the fields.");
-//     res.redirect("/register");
-//   } else
-//   client.db("ShoesStore").collection("Users").insertOne(
-//     {
-//       email: "example@example.com",
-//       password: "123456"
-//     }
-//   );
-//   req.flash("info", "Account made, please log in...");
-//   res.redirect("/login");
-//   next();
-// }
-// })
+    // if (searchVal === "") {
+    //   await client
+    //   .db("ShoesStore")
+    //   .collection("Products")
+    //   .find()
+    //   .then((productFromDB) => {
+    //     console.log("products: ", productFromDB);
+    // }
+    // } else {
+    await client
+      .db("ShoesStore")
+      .collection("Products")
+      .find({ name: { $regex: searchVal } })
+      .then((productsFromDB) => {
+        console.log("products: ", productsFromDB);
 
-// app.use("/login", async (req, res, next) => {
-//   const user = await User.findOne({
-//     email: req.body.email,
-//     password: req.body.password,
-//   });
+        //no products were found
+        if (productsFromDB === null) {
+          res.status(200).json({ noResults: true });
+        } else {
+          res.status(200).json({ productFromDB: productsFromDB });
+        }
+      });
+  } catch (error) {
+    console.log("ERR: ", error);
+    // email not found / error
+    return res.redirect("/login.html");
+  }
+});
 
-//   if (user) {
-//     res.redirect("/");
-//   } else {
-//     res.redirect("/login");
-//   }
 
-//   next();
-// });
+//show products were added to cart belong to the current logged-in user
 
-// app.get("/", (req, res) => {
-//   res.sendFile(__dirname + "/index.html");
-// });
 
 app.get("/", (req, res) => {
   res.render("index.html");
@@ -342,15 +288,19 @@ app.get("/logout", (req, res) => {
   res.redirect("/index.html");
 });
 
+app.post("/backToCart", (req, res) => {
+  res.redirect("cart.html");
+});
+
 //check for user authentication before trying to view cart
 app.get("/cart.html", (req, res) => {
   res.sendFile(__dirname + "/index.html");
 });
 
-app.post("/getProducts", (req, res) => {
-  let payload = req.body.payload.trim();
-  console.log(payload);
-});
+// app.post("/getProducts", (req, res) => {
+//   let payload = req.body.payload.trim();
+//   console.log(payload);
+// });
 
 //listen for request on port 3000, and as a callback function have the port listened on logged
 app.listen(port, hostname, () => {
