@@ -12,12 +12,16 @@ const letRedirect = async (url) => {
     });
 };
 
-window.addEventListener("load", () => {
+window.addEventListener("load", async () => {
   const nav = document.getElementById("navElem");
   // if user is authenticated:
-  fetch("/isloggedin").then((res) => {
-    console.log("at isloggedin");
-    if (res.status === 200) {
+  try {
+    let res = await fetch("/isloggedin");
+    console.log("at isloggedin", res);
+
+    jsonRes = await res.json();
+
+    if (res.status === 200 && jsonRes.isLoggedIn === true) {
       // logged in
       const cartLine = document.createElement("li");
       cartLine.innerHTML = '<a href="./cart.html">Cart</a>';
@@ -33,8 +37,18 @@ window.addEventListener("load", () => {
       loginLine.innerHTML = '<a href="./login.html">Log In</a>';
       nav.appendChild(loginLine);
     }
-  });
+  } catch (error) {
+    console.log("errr ", error);
+
+    setTimeout(() => {
+      window.alert("Something went wrong.. Soryy");
+    }, 3000);
+
+    letRedirect("/notSuccessLogin");
+
+  }
 });
+
 
 const onClickLoginEventHandler = async () => {
   const email = document.getElementById("Uname").value;

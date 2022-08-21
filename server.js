@@ -157,7 +157,10 @@ app.post("/login", async (req, res, _next) => {
       .then((userFromDB) => {
         console.log("USER: ", userFromDB);
 
-        if (userFromDB == null) {
+        //userFromDB = await userFromDB.json();
+
+        if (userFromDB === null) {
+          console.log("user is null");
           res.status(200).json({ emailExists: false, passwordExists: false });
         }
 
@@ -165,7 +168,9 @@ app.post("/login", async (req, res, _next) => {
           // fully logged in
           let loggedInUserID = userFromDB._id;
           //rememberme was checked - remember for 30 days
-          if (req.body.rememberMe) {
+
+          if (req.body.rememberMe !== null) {
+            console.log("remember me isn't null");
             res.cookie(
               "session",
               { userID: loggedInUserID },
@@ -173,6 +178,7 @@ app.post("/login", async (req, res, _next) => {
             );
             //rememberme wasn't checked
           } else {
+            console.log("alllll null");
             res.cookie(
               "session",
               { userID: loggedInUserID },
@@ -191,7 +197,6 @@ app.post("/login", async (req, res, _next) => {
 
 //adds item to cart for a user
 app.post("/addItemToCart", async (req, res, _next) => {
-
   //if item already in cart - update it's quantity
   itemName = req.body.itemName;
 
@@ -214,7 +219,6 @@ app.post("/addItemToCart", async (req, res, _next) => {
     currentCart.push({ productFromDB });
     res.cookie("cart", currentCart, { maxAge: 30 * 60 * 1000 });
     console.log("FF", req.cookies?.cart);
-
 
     res.status(200).json({ productFromDB });
   } catch (error) {
@@ -226,7 +230,6 @@ app.post("/addItemToCart", async (req, res, _next) => {
 
 //adds item to cart for a user
 app.post("/removeItemFromCart", async (req, res, _next) => {
-
   //if item already in cart - update it's quantity
   itemName = req.body.itemName;
 
@@ -250,7 +253,6 @@ app.post("/removeItemFromCart", async (req, res, _next) => {
     res.cookie("cart", currentCart, { maxAge: 30 * 60 * 1000 });
     console.log("FF", req.cookies?.cart);
 
-
     res.status(200).json({ productFromDB });
   } catch (error) {
     console.log("ERR: ", error);
@@ -260,41 +262,37 @@ app.post("/removeItemFromCart", async (req, res, _next) => {
 });
 
 //get items from DB
-app.post("/getItemsFromDB", async (req, res, _next) => {
+app.get("/getItemsFromDB", async (req, res, _next) => {
   let searchVal = req.body.searchVal;
   console.log("search value from server:", searchVal);
 
   try {
-    let findInput = "";
-
-    if (searchVal !== "") {
-      findInput = { name: { $regex: searchVal } };
-    }
     //user was found in db - return it's id
 
-    // if (searchVal === "") {
-    //   await client
-    //   .db("ShoesStore")
-    //   .collection("Products")
-    //   .find()
-    //   .then((productFromDB) => {
-    //     console.log("products: ", productFromDB);
-    // }
-    // } else {
-    await client
-      .db("ShoesStore")
-      .collection("Products")
-      .find(findInput)
-      .then((productsFromDB) => {
-        console.log("products: ", productsFromDB);
+    if (searchVal == null) {
+      await client
+        .db("ShoesStore")
+        .collection("Products")
+        .find()
+        .then((productsFromDB) => {
+          console.log("products: ", productsFromDB);
+        });
+    } else {
+      await client
+        .db("ShoesStore")
+        .collection("Products")
+        .find({ name: { $regex: searchVal } })
+        .then((productsFromDB) => {
+          console.log("products: ", productsFromDB);
 
-        //no products were found
-        if (productsFromDB === null) {
-          res.status(200).json({ noResults: true });
-        } else {
-          res.status(200).json({ productsFromDB });
-        }
-      });
+          //no products were found
+          if (productsFromDB === null) {
+            res.status(200).json({ noResults: true });
+          } else {
+            res.status(200).json({ productsFromDB });
+          }
+        });
+    }
   } catch (error) {
     console.log("ERR: ", error);
     // email not found / error
@@ -306,12 +304,12 @@ app.use("/itemsExistInCart", async (req, res) => {
   console.log("cookies", req.cookies?.cart);
 
   if (req.cookies === {} || !req.cookies?.cart) {
-    res.status(401).send({ itemsInCart: false });
+    res.status(200).send({ itemsInCart: false });
   } else {
     let cartCookie = await req.cookies.cart.json();
     res.status(200).send({ itemsInCart: true, cartCookie });
   }
-})
+});
 
 app.post("/clearCart", async (req, res) => {
   console.log("cookies", req.cookies?.cart);
@@ -320,12 +318,10 @@ app.post("/clearCart", async (req, res) => {
 
   if (!req.cookies?.cart) {
     res.status(200).send({ cookiesWereCleared: true });
+  } else {
+    res.status(200).send({ cookiesWereCleared: false });
   }
-  else {
-    res.status(401).send({ cookiesWereCleared: false });
-  }
-})
-
+});
 
 //show products were added to cart belong to the current logged-in user
 

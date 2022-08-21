@@ -1,16 +1,12 @@
 console.log("at addToCart.js");
 
-window.addEventListener("load", () => {
-  sendDataFromSearch("");
-});
-
 const sendDataFromSearch = async (searchVal) => {
   console.log("search val:", searchVal);
 
   try {
     let res = await fetch("/getItemsFromDB", {
       body: JSON.stringify({ searchVal }),
-      method: "POST",
+      method: "GET",
       headers: { "Content-Type": "application/json" },
     });
 
@@ -21,7 +17,7 @@ const sendDataFromSearch = async (searchVal) => {
       window.alert("Sorry, no results were found for this search");
       // results were found from search vals
     } else {
-      let products = Array.from(res.productFromDB);
+      let products = Array.from(res.productsFromDB);
       console.log("products from DB:", products);
       //the products should be in json format.
       //we'll create an element from each product
@@ -61,7 +57,7 @@ const sendDataFromSearch = async (searchVal) => {
     console.log("err ", error);
 
     setTimeout(() => {
-      window.alert("Login failed. Please try again");
+      window.alert("RES.JSON is failed!!");
     }, 3000);
 
     letRedirect("/redirectHome");
@@ -149,6 +145,11 @@ addToCart.addEventListener("click", async () => {
     letRedirect("/redirectHome");
   }
 });
+
+window.addEventListener("load", async () => {
+  await sendDataFromSearch();
+});
+
 
 //     res = await res.json();
 //   }
