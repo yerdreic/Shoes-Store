@@ -6,6 +6,8 @@
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
     <link rel="stylesheet" href="./navbar.css">
     <script type="text/javascript" src="app.js" async></script>
+    <script type="text/javascript" src="cart.js" async></script>
+    
 <body>
     <h2>Shopping cart</h2><br>
     <div class="navbar">
@@ -22,16 +24,18 @@
     <div class="container padding-bottom-3x mb-1">
         <!-- Shopping Cart-->
         <div class="table-responsive shopping-cart">
-            <table class="table">
+            <table class="table" id="insertCartItemUnder">
+
                 <thead>
                     <tr>
                         <th>Product Name</th>
                         <th class="text-center">Quantity</th>
                         <th class="text-center">Subtotal</th>
                         <th class="text-center">Discount</th>
-                        <th class="text-center"><a class="btn btn-sm btn-outline-danger" href="#">Clear Cart</a></th>
+                        <th class="text-center"><a class="btn btn-sm btn-outline-danger" onclick="onClearItemEventHandler(true)">Clear Cart</a></th>
                     </tr>
                 </thead>
+                
                 <tbody>
                     <tr>
                         <td>
@@ -112,7 +116,7 @@
                         <td class="text-center text-lg text-medium">$200.00</td>
                         <td class="text-center">—</td>
                         <td class="text-center"><a class="remove-from-cart" href="#" data-toggle="tooltip" title=""
-                                data-original-title="Remove item"><i class="fa fa-trash"></i></a></td>
+                                data-original-title="Remove item" onclick="onClearItemEventHandler()"><i class="fa fa-trash"></i></a></td>
                     </tr>
                 </tbody>
             </table>

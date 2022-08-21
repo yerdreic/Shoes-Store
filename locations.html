@@ -2,63 +2,70 @@
 <html>
 
 <head>
+	<script type="text/javascript" src="app.js" async></script>
 	<meta charset="utf-8">
 	<title>Customize the scroll-bar</title>
 	<style media="screen">
 		section {
-			background-image: linear-gradient(
-				to right, rgb(255, 165, 0), rgb(220, 190, 93));
+			background-image: linear-gradient(to right, rgb(255, 165, 0), rgb(220, 190, 93));
 		}
 
-        .h1{
-            float: right;
-        }
+		.h1 {
+			float: right;
+		}
 
-        .topnav a {
-float: left;
-color: #f2f2f2;
-text-align: center;
-padding: 14px 16px;
-text-decoration: none;
-font-size: 17px;
-}
+		.topnav a {
+			float: left;
+			color: #f2f2f2;
+			text-align: center;
+			padding: 14px 16px;
+			text-decoration: none;
+			font-size: 17px;
+		}
 
-/* Change the color of links on hover */
-.topnav a:hover {
-background-color: #ddd;
-color: black;
-}
+		/* Change the color of links on hover */
+		.topnav a:hover {
+			background-color: #ddd;
+			color: black;
+		}
 
-/* Add a color to the active/current link */
-.topnav a.active {
-background-color: gray;
-color: white;
-}
+		/* Add a color to the active/current link */
+		.topnav a.active {
+			background-color: gray;
+			color: white;
+		}
 
-/* Right-aligned section inside the top navigation */
-.topnav-right {
-float: right;
-}
-
+		/* Right-aligned section inside the top navigation */
+		.topnav-right {
+			float: right;
+		}
 	</style>
 </head>
+
 <body>
-    <div class="topnav">
-        <a class="active" href="index.html">Home</a>
-        <div class="topnav-right">
-          <a href="#">Log Out</a>
-        </div>
-      </div> 
-      <section>
+	<div class="navbar">
+		<nav id="nav">
+			<ul id="navElem">
+				<li><a href="./index.html">Home</a></li>
+				<li><a href="./catalog.html">Catalog</a></li>
+				<li><a href="./about.html">About Us</a></li>
+				<li><a href="./contact.html">Contact Us</a></li>
+			</ul>
+		</nav>
+	</div>
+	<section>
 		<h1 style="color:blackS;">
 			Our Locations
 		</h1>
-		
+
 		<div>
 			<!-- Google Map Copied Code -->
-            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d104978.93441318868!2d33.156012437499996!3d34.690252999999984!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14e73197985a897d%3A0x78f109055731bbba!2sTrendy%20Shoes!5e0!3m2!1siw!2sil!4v1660473650603!5m2!1siw!2sil" width="800" height="600" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+			<iframe
+				src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d104978.93441318868!2d33.156012437499996!3d34.690252999999984!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14e73197985a897d%3A0x78f109055731bbba!2sTrendy%20Shoes!5e0!3m2!1siw!2sil!4v1660473650603!5m2!1siw!2sil"
+				width="800" height="600" style="border:0;" allowfullscreen="" loading="lazy"
+				referrerpolicy="no-referrer-when-downgrade"></iframe>
 		</div>
-    </section>
+	</section>
 </body>
 
 </html>

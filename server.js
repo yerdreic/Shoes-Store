@@ -91,11 +91,6 @@ const Catalog = mongoose.model("ShoesStore.Products", catalogSchema);
 // });
 
 app.get("/isloggedin", async (req, res) => {
-  user = {
-    email: req.body.email,
-    password: req.body.password,
-  };
-
   console.log("FF", req.cookies?.session);
 
   if (req.cookies === {} || !req.cookies?.session) {
@@ -194,39 +189,87 @@ app.post("/login", async (req, res, _next) => {
   }
 });
 
-//gadds item to cart for a user
+//adds item to cart for a user
 app.post("/addItemToCart", async (req, res, _next) => {
+
+  //if item already in cart - update it's quantity
   itemName = req.body.itemName;
 
   try {
-    await client
+    let productFromDB = await client
       .db("ShoesStore")
       .collection("Products")
-      .find({ name: itemName })
-      .then((productFromDB) => {
-        console.log("product: ", productFromDB);
-        //add the product to session
-        const currentCart = req.cookies.cart || [];
-        currentCart.push({ itemName });
-        res.cookie(
-          "cart",
-          currentCart,
-          { maxAge: 30 * 60 * 1000 }
-        );
-        res.status(200).json({ productFromDB: productFromDB });
-      });
+      .findOne({ name: itemName });
+
+    if (!productFromDB) {
+      throw new Error("No result about this user");
+    }
+
+    productFromDB = await productFromDB.json();
+
+    console.log("product: ", productFromDB);
+
+    //add the product to a new session
+    const currentCart = req.cookies.cart || [];
+    currentCart.push({ productFromDB });
+    res.cookie("cart", currentCart, { maxAge: 30 * 60 * 1000 });
+    console.log("FF", req.cookies?.cart);
+
+
+    res.status(200).json({ productFromDB });
   } catch (error) {
     console.log("ERR: ", error);
     // email not found / error
-    return res.redirect("/login.html");
+    return res.redirect("/index.html");
+  }
+});
+
+//adds item to cart for a user
+app.post("/removeItemFromCart", async (req, res, _next) => {
+
+  //if item already in cart - update it's quantity
+  itemName = req.body.itemName;
+
+  try {
+    let productFromDB = await client
+      .db("ShoesStore")
+      .collection("Products")
+      .findOne({ name: itemName });
+
+    if (!productFromDB) {
+      throw new Error("No result about this user");
+    }
+
+    productFromDB = await productFromDB.json();
+
+    console.log("product: ", productFromDB);
+
+    //add the product to a new session
+    const currentCart = req.cookies.cart || [];
+    currentCart.push({ productFromDB });
+    res.cookie("cart", currentCart, { maxAge: 30 * 60 * 1000 });
+    console.log("FF", req.cookies?.cart);
+
+
+    res.status(200).json({ productFromDB });
+  } catch (error) {
+    console.log("ERR: ", error);
+    // email not found / error
+    return res.redirect("/index.html");
   }
 });
 
 //get items from DB
-app.post("/getItems", async (req, res, _next) => {
-  searchVal = req.body.searchVal;
+app.post("/getItemsFromDB", async (req, res, _next) => {
+  let searchVal = req.body.searchVal;
+  console.log("search value from server:", searchVal);
 
   try {
+    let findInput = "";
+
+    if (searchVal !== "") {
+      findInput = { name: { $regex: searchVal } };
+    }
     //user was found in db - return it's id
 
     // if (searchVal === "") {
@@ -241,7 +284,7 @@ app.post("/getItems", async (req, res, _next) => {
     await client
       .db("ShoesStore")
       .collection("Products")
-      .find({ name: { $regex: searchVal } })
+      .find(findInput)
       .then((productsFromDB) => {
         console.log("products: ", productsFromDB);
 
@@ -249,7 +292,7 @@ app.post("/getItems", async (req, res, _next) => {
         if (productsFromDB === null) {
           res.status(200).json({ noResults: true });
         } else {
-          res.status(200).json({ productFromDB: productsFromDB });
+          res.status(200).json({ productsFromDB });
         }
       });
   } catch (error) {
@@ -259,12 +302,43 @@ app.post("/getItems", async (req, res, _next) => {
   }
 });
 
+app.use("/itemsExistInCart", async (req, res) => {
+  console.log("cookies", req.cookies?.cart);
+
+  if (req.cookies === {} || !req.cookies?.cart) {
+    res.status(401).send({ itemsInCart: false });
+  } else {
+    let cartCookie = await req.cookies.cart.json();
+    res.status(200).send({ itemsInCart: true, cartCookie });
+  }
+})
+
+app.post("/clearCart", async (req, res) => {
+  console.log("cookies", req.cookies?.cart);
+
+  res.clearCookie("cart");
+
+  if (!req.cookies?.cart) {
+    res.status(200).send({ cookiesWereCleared: true });
+  }
+  else {
+    res.status(401).send({ cookiesWereCleared: false });
+  }
+})
+
 
 //show products were added to cart belong to the current logged-in user
 
-
 app.get("/", (req, res) => {
   res.render("index.html");
+});
+
+app.post("/redirectHome", (req, res) => {
+  res.redirect("index.html");
+});
+
+app.post("/successClearCart", (req, res) => {
+  res.redirect("cart.html");
 });
 
 app.post("/successLogin", (req, res) => {
@@ -285,6 +359,7 @@ app.get("/register", (req, res) => {
 
 app.get("/logout", (req, res) => {
   res.clearCookie("session");
+  res.clearCookie("cart");
   res.redirect("/index.html");
 });
 

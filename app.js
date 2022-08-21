@@ -1,4 +1,17 @@
 console.log("at app.js");
+
+const letRedirect = async (url) => {
+  await fetch(url, { method: "POST" })
+    .then((response) => {
+      if (response.redirected) {
+        window.location.href = response.url;
+      }
+    })
+    .catch((error) => {
+      console.log("ERR: Something is wrong. Please refresh the page");
+    });
+};
+
 window.addEventListener("load", () => {
   const nav = document.getElementById("navElem");
   // if user is authenticated:
@@ -52,46 +65,28 @@ const onClickLoginEventHandler = async () => {
 
     if (res.emailExists && res.passwordExists) {
       // res is ok == what to do from here !?
-      window.alert("yay");
-
-      let url = `/successLogin`;
-
-      await fetch(url, { method: "POST" })
-        .then((response) => {
-          if (response.redirected) {
-            window.location.href = response.url;
-          }
-        })
-        .catch(function (err) {
-          console.info(err + " url: " + url);
-        });
+      letRedirect(`/successLogin`);
     }
 
     if (res.emailExists && !res.passwordExists) {
       // only email was found
-      let wrongUrl = `/notSuccessLogin`;
       window.alert("Wrong password. Please try again.");
-
-      await fetch(wrongUrl, { method: "POST" })
-        .then((response) => {
-          if (response.redirected) {
-            window.location.href = response.url;
-          }
-        })
-        .catch(function (err) {
-          console.info(err + " url: " + wrongUrl);
-        });
+      letRedirect(`/notSuccessLogin`);
     }
   } catch (error) {
     console.log("errr ", error);
-    window.alert("Login failed: ");
+
+    setTimeout(() => {
+      window.alert("Login failed. Please try again");
+    }, 3000);
+
+    letRedirect("/notSuccessLogin");
   }
 };
 
 const onClickRegisterEventHandler = async () => {
   const email = document.getElementById("Uname").value;
   const password = document.getElementById("Pass").value;
-  let newUserWasAdded = false;
 
   try {
     let res = await fetch(`/register`, {
@@ -107,30 +102,28 @@ const onClickRegisterEventHandler = async () => {
     res = await res.json();
 
     if (res.emailExists) {
-      window.alert(
-        'Sorry, that email is taken. Maybe you need to <a href="/login.html">login</a>?'
-      );
+      setTimeout(() => {
+        window.alert("Sorry, that email is taken. Maybe you need to login");
+      }, 3000);
+  
+      letRedirect(`/notSuccessLogin`);
     }
 
     if (res.newUserWasAdded === true) {
       setTimeout(() => {
         window.alert("New user was created. Please login");
-      }, 1000);
+      }, 3000);
 
-      let url = `/successLogin`;
-
-      await fetch(url, { method: "POST" })
-        .then((response) => {
-          if (response.redirected) {
-            window.location.href = response.url;
-          }
-        })
-        .catch(function (err) {
-          console.info(err + " url: " + url);
-        });
+      letRedirect(`/successLogin`);
     }
   } catch (error) {
-    console.log("errr ", error);
-    window.alert("Login failed: ");
+    console.log("ERR ", error);
+
+    setTimeout(() => {
+      window.alert("Register failed. Please try again");
+    }, 3000);
+
+    letRedirect("/redirectHome");
   }
 };
+

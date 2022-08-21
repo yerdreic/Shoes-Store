@@ -3,10 +3,9 @@
 
 <head>
   <link rel="stylesheet" type="text/css" href="catalog.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="https:cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link rel="stylesheet" href="./navbar.css">
   <script type="text/javascript" src="app.js" async></script>
-  <script type="text/javascript" src="addToCart.js" defer></script>
   <script type="text/javascript" src="catalog.js" defer></script>
 </head>
 
@@ -28,9 +27,25 @@
   <div class="Items container">
     <h1 class="text-center text-muted">Product catalog</h1>
     <div class="row flow-offset-1" id="insertItemsUnder">
+      <div class="col-xs-6 col-md-4">
+        <div class="product tumbnail thumbnail-3"><a href="#"><img src="images/shoes1.jpg"></a>
+          <div class="caption">
+            <button>
+              <span class="add-to-cart">Add To Cart</span>
+              <i class="fas fa-shopping-cart"></i>
+              <i class="fas fa-shopping-bag"></i>
+              <span class="added-to-cart">Added To Cart</span>
+            </button>
+            <!-- added id to item name -->
+            <h6><a href="#" id="itemName">Air Jordan 3 Retro</a></h6><span class="price">
+              <!-- added id to price -->
+              <del id="itemPrice">$459.99</del></span>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
-
   <script>
   </script>
 </body>
