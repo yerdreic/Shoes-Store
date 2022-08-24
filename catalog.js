@@ -2,55 +2,163 @@ console.log("at addToCart.js");
 
 const sendDataFromSearch = async (searchVal) => {
   console.log("search val:", searchVal);
+  searchVal = searchVal === undefined ? null : searchVal;
+  console.log("search val:", searchVal);
 
   try {
     let res = await fetch("/getItemsFromDB", {
       body: JSON.stringify({ searchVal }),
-      method: "GET",
+      method: "POST",
       headers: { "Content-Type": "application/json" },
     });
+    console.log("res before json():", res);
 
     res = await res.json();
+    console.log("res after json()::", res);
 
     //no result was found from search vals
     if (res.noResults) {
       window.alert("Sorry, no results were found for this search");
       // results were found from search vals
     } else {
-      let products = Array.from(res.productsFromDB);
+      let products = res.productsFromDB;
       console.log("products from DB:", products);
       //the products should be in json format.
       //we'll create an element from each product
+      let insertItemsUnder = document.getElementById("insertItemsUnder");
+
       products.forEach((product) => {
+        console.log(product.name);
+        console.log(product.price);
+
         //imgSrc = product.image;
         productName = product.name;
         productPrice = product.price;
         console.log(productName);
         console.log(productPrice);
-        document.write('      <div class="col-xs-6 col-md-4">');
-        document.write('        <div class="product tumbnail thumbnail-3"><a href="#"><img src="images/shoes1.jpg"></a>');
-        document.write('          <div class="caption">');
-        document.write('            <button>');
-        document.write('              <span class="add-to-cart">Add To Cart</span>');
-        document.write('              <i class="fas fa-shopping-cart"></i>');
-        document.write('              <i class="fas fa-shopping-bag"></i>');
-        document.write('              <span class="added-to-cart">Added To Cart</span>');
-        document.write('            </button>');
-        document.write('            <h6><a href="#" id="itemName"></a></h6><span class="price">');
-        document.write('              <del id="itemPrice">$459.99</del></span>');
-        document.write('          </div>');
-        document.write('        </div>');
-        document.write('      </div>');
-        document.write('');
 
-        let itemNameElement = document.getElementById("itemName");
-        itemNameElement.innerHTML = productName;
-        let itemPriceElement = document.getElementById("itemPrice");
-        itemPriceElement.innerHTML = productName;
+        let divItem = document.createElement("div");
+        let divClassStyle = document.createElement("div");
+        let divClassProduct = document.createElement("div");
+        let itemImg = document.createElement("img");
+        let divClassCaption = document.createElement("div");
+
+        divClassStyle.classList.add("col-xs-6", "col-md-4");
+        divClassProduct.classList.add("product", "tumbnail", "thumbnail-3");
+        //chnage the src of the image to the name from the db
+        itemImg.setAttribute("src", "images/shoes1.jpg");
+        divClassCaption.classList.add("caption");
+
+        //divClassProduct.appendChild(itemImg);
+
+        // const lastItem = Array.from(
+        //   document.querySelectorAll('.item')
+        // ).pop();
+
+        //   <div id="item">
+        //   <div class="col-xs-6 col-md-4" id="template">
+        //     <div class="product tumbnail thumbnail-3" id="under-main-template">
+        //       <img src="images/shoes1.jpg" id="under-main-template-1">
+        //       <div class="caption" id="under-main-template-1">
+        //         <button id="under-main-template-2">
+        //           <span class="add-to-cart">Add To Cart</span>
+        //           <i class="fas fa-shopping-cart"></i>
+        //           <i class="fas fa-shopping-bag"></i>
+        //           <span class="added-to-cart">Added To Cart</span>
+        //         </button>
+        //         <!-- added id to item name -->
+        //         <h6 id="template-item-name"></h6>
+        //         <span class="price">
+        //           <!-- added id to price -->
+        //           <del id="template-item-price"></del>
+        //         </span>
+        //       </div>
+        //     </div>
+        //   </div>
+        // </div>
+
+
+        //let itemNameElement = document.getElementById("itemName");
+        //itemNameElement.innerHTML = productName;
+        // let itemPriceElement = document.getElementById("itemPrice");
+        // itemPriceElement.innerText = productName;
+        // divItem.appendChild(itemNameElement);
+        // divItem.appendChild(itemPriceElement);
+
+        let buttonAddToCart = document.createElement("button");
+        let spanAddToCart = document.createElement("span");
+        let spanAddedToCart = document.createElement("span");
+        let iShoppingCart = document.createElement("fas", "fa-shopping-cart");
+        let iShoppingBag = document.createElement("fas", "fa-shopping-bag");
+        spanAddToCart.innerText = "Add To Cart";
+        spanAddedToCart.innerText = "Added To Cart";
+        spanAddToCart.classList.add("add-to-cart");
+        spanAddedToCart.classList.add("added-to-cart");
+        iShoppingCart.classList.add("add-to-cart");
+        iShoppingBag.classList.add("add-to-cart");
+        buttonAddToCart.appendChild(spanAddToCart);
+        buttonAddToCart.appendChild(iShoppingCart);
+        buttonAddToCart.appendChild(iShoppingBag);
+        buttonAddToCart.appendChild(spanAddedToCart);
+
+        divClassCaption.appendChild(buttonAddToCart);
+
+        let itemNameElement = document.createElement("h6");
+        let spanItemPrice = document.createElement("span");
+        let delItemPrice = document.createElement("del");
+
+        itemNameElement.innerText = productName;
+        spanItemPrice.classList.add("price");
+        delItemPrice.innerText = productPrice;
+
+        divClassCaption.appendChild(itemNameElement);
+
+        spanItemPrice.appendChild(delItemPrice);
+        divClassCaption.appendChild(spanItemPrice);
+        divClassProduct.appendChild(itemImg);
+        divClassProduct.appendChild(divClassCaption);
+        divClassStyle.appendChild(divClassProduct);
+        divItem.appendChild(divClassStyle);
+        insertItemsUnder.appendChild(divItem);
+
 
 
         //we'll use these value inside the html
         //needs to addEventListener to each product - done below!
+      });
+
+      const buttons = document.querySelectorAll("button");
+      const addToCart = document.querySelectorAll(".add-to-cart");
+      const addedToCart = document.querySelectorAll(".added-to-cart");
+      const cart = document.querySelectorAll(".fa-shopping-cart");
+      const bag = document.querySelectorAll(".fa-shopping-bag");
+
+      buttons.addEventListener("click", () => {
+        addToCart.classList.add("add-to-cart-animation");
+        addedToCart.classList.add("added-to-cart-animation");
+
+        cart.style.animation = "cart 2000ms ease-in-out forwards";
+        bag.style.animation = "bag 2000ms 700ms ease-in-out forwards";
+      });
+
+      addToCart.addEventListener("click", async () => {
+        //add the id of the name of the item
+        //let itemName = document.getElementById("itemName");
+        //let itemSize = document.getElementById("itemName");
+
+        await fetch(`/addItemToCart`, {
+          body: JSON.stringify({ itemName }),
+          cache: "no-cache",
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        })
+          .then((res) => {
+            window.alert("item was added to cart!");
+            //we can add here 2 buttons - "go to cart" and "continue shopping"
+          })
+          .catch((error) => {
+            console.log("ERR: ", error);
+          });
       });
     }
   } catch (error) {
@@ -64,10 +172,12 @@ const sendDataFromSearch = async (searchVal) => {
   }
 };
 
+// const addFunctionalityToElements = async () => {
+
 //needs to be in this structure
 
 //   <div class="col-xs-6 col-md-4">
-//   <div class="product tumbnail thumbnail-3"><a href="#"><img src="images/shoes1.jpg"></a>
+//   <div class="product tumbnail thumbnail-3"><img src="images/shoes1.jpg"></a>
 //     <div class="caption">
 //       <button>
 //         <span class="add-to-cart">Add To Cart</span>
@@ -101,55 +211,8 @@ const sendDataFromSearch = async (searchVal) => {
 // }
 
 // add to cart button
-const button = document.querySelector("button");
-const addToCart = document.querySelector(".add-to-cart");
-const addedToCart = document.querySelector(".added-to-cart");
-const cart = document.querySelector(".fa-shopping-cart");
-const bag = document.querySelector(".fa-shopping-bag");
-
-button.addEventListener("click", () => {
-  addToCart.classList.add("add-to-cart-animation");
-  addedToCart.classList.add("added-to-cart-animation");
-
-  cart.style.animation = "cart 2000ms ease-in-out forwards";
-  bag.style.animation = "bag 2000ms 700ms ease-in-out forwards";
-});
 
 //when clicking add-to-cart
-addToCart.addEventListener("click", async () => {
-  try {
-    //add the id of the name of the item
-    let itemName = document.getElementById("itemName");
-    let itemSize = document.getElementById("itemName");
-
-    await fetch(`/addItemToCart`, {
-      body: JSON.stringify({ itemName }),
-      cache: "no-cache",
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-    })
-      .then((res) => {
-        window.alert("item was added to cart!");
-        //we can add here 2 buttons - "go to cart" and "continue shopping"
-      })
-      .catch((error) => {
-        console.log("ERR: ", error);
-      });
-  } catch (error) {
-    console.log("err ", error);
-
-    setTimeout(() => {
-      window.alert("Login failed. Please try again");
-    }, 3000);
-
-    letRedirect("/redirectHome");
-  }
-});
-
-window.addEventListener("load", async () => {
-  await sendDataFromSearch();
-});
-
 
 //     res = await res.json();
 //   }

@@ -2,10 +2,12 @@ const renderItemsInCart = async () => {
 
   try {
     let loggedIn = await fetch("/isloggedin");
-    
-    if (loggedIn.isLoggedIn) {
+
+    loggedIn = await loggedIn.json()
+    console.log(loggedIn);
 
     
+    if (loggedIn.isLoggedIn === true) {
 
     let res = await fetch("/itemsExistInCart", {
       method: "POST",
@@ -22,6 +24,7 @@ const renderItemsInCart = async () => {
 
     //no items is cart. Add elemnts to document that say that
     if (!res.itemsInCart) {
+      let itemsElements = document.querySelectorAll(".d1 > .d2 > .d3");
       let noItems = document.createElement("h1");
       noItems.innerText =
         'no items in cart yet. click on "go to catalog" to add some items!';
@@ -125,7 +128,14 @@ const renderItemsInCart = async () => {
     //         </div>
     //     </div>
     // </td>
-  }
+    } else {
+        setTimeout(() => {
+            window.alert("The cart is only available for logged in users.\n You might want to login then...");
+          }, 8000);
+
+          letRedirect("/notSuccessLogin");
+    }
+
     } catch (error) {
     console.log("ERR", err);
     letRedirect("/redirectHome");
@@ -172,10 +182,6 @@ const onClearItemEventHandler = async (clearAllCart) => {
     letRedirect("/redirectHome");
   }
 };
-
-window.addEventListener("load", () => {
-    renderItemsInCart();
-  });
   
 
 //connect the logo of deletion to the 

@@ -5,7 +5,12 @@
   <title>Login Form</title>
   <link rel="stylesheet" type="text/css" href="login.css">
   <link rel="stylesheet" href="./navbar.css">
-  <script type="text/javascript" src="app.js" async></script>
+  <script type="text/javascript" src="app.js"></script>
+  <script type="text/javascript" async>
+    window.addEventListener("load", async () => {
+      await setNavBar();
+    })
+  </script>
 </head>
 
 <body>
@@ -22,19 +27,19 @@
         </ul>
       </nav>
     </div>
-      <label><b>Email Address</b></label>
-      <input type="text" name="email" id="Uname" placeholder="Email">
-      <br><br>
-      <label><b>Password</b></label>
-      <input type="Password" name="password" id="Pass" placeholder="Password">
-      <br><br>
-      <button name="log" id="log" value="Log In Here" onclick="onClickLoginEventHandler()">Log In Here</button>
-      <br><br>
-      <input type="checkbox" id="check">
-      <span>Remember me</span>
-      <br><br>
-      <a href="#">Forgot Password</a>
-      <a id= "register" href="/register.html">Don't have an account yet? Click here to register</a>
+    <label><b>Email Address</b></label>
+    <input type="text" name="email" id="Uname" placeholder="Email">
+    <br><br>
+    <label><b>Password</b></label>
+    <input type="Password" name="password" id="Pass" placeholder="Password">
+    <br><br>
+    <button name="log" id="log" value="Log In Here" onclick="onClickLoginEventHandler()">Log In Here</button>
+    <br><br>
+    <input type="checkbox" id="check">
+    <span>Remember me</span>
+    <br><br>
+    <a href="#">Forgot Password</a>
+    <a id="register" href="/register.html">Don't have an account yet? Click here to register</a>
   </div>
 </body>
 

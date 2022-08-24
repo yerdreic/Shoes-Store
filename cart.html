@@ -5,9 +5,15 @@
     <link href="cart.css" rel="stylesheet">
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
     <link rel="stylesheet" href="./navbar.css">
-    <script type="text/javascript" src="app.js" async></script>
-    <script type="text/javascript" src="cart.js" async></script>
-    
+    <script type="text/javascript" src="app.js"></script>
+    <script type="text/javascript" src="cart.js"></script>
+    <script type="text/javascript" async>
+      window.addEventListener("load", async () => {
+        await setNavBar();
+        await renderItemsInCart();
+      })
+    </script>
+        
 <body>
     <h2>Shopping cart</h2><br>
     <div class="navbar">

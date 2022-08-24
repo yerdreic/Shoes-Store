@@ -12,14 +12,15 @@ const letRedirect = async (url) => {
     });
 };
 
-window.addEventListener("load", async () => {
+//window.addEventListener("load", async () => {
+const setNavBar = async () => {
   const nav = document.getElementById("navElem");
   // if user is authenticated:
   try {
     let res = await fetch("/isloggedin");
     console.log("at isloggedin", res);
 
-    jsonRes = await res.json();
+    let jsonRes = await res.json();
 
     if (res.status === 200 && jsonRes.isLoggedIn === true) {
       // logged in
@@ -47,7 +48,7 @@ window.addEventListener("load", async () => {
     letRedirect("/notSuccessLogin");
 
   }
-});
+};
 
 
 const onClickLoginEventHandler = async () => {
@@ -140,4 +141,3 @@ const onClickRegisterEventHandler = async () => {
     letRedirect("/redirectHome");
   }
 };
-

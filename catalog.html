@@ -2,11 +2,21 @@
 <html>
 
 <head>
-  <link rel="stylesheet" type="text/css" href="catalog.css">
   <link rel="stylesheet" href="https:cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <link rel="stylesheet" href="./navbar.css">
-  <script type="text/javascript" src="app.js" async></script>
-  <script type="text/javascript" src="catalog.js" async></script>
+  <link rel="stylesheet" href="./navbar.css" async>
+  <link rel="stylesheet" type="text/css" href="catalog.css" async>
+
+  <!-- <script async>
+    [
+      'app.js',
+      'catalog.js'
+    ].forEach(function (src) {
+      let script = document.createElement('script');
+      script.src = src;
+      script.async = false;
+      document.head.appendChild(script);
+    });
+  </script> -->
 </head>
 
 <body>
@@ -22,32 +32,51 @@
   </div>
   <div class="search-wrapper">
     <label for="search">Search</label>
-    <input type="search" id="search" onkeyup="sendDataFromSearch(this.value)" data-search>
+    <input type="search" id="search" data-search>
   </div>
   <div class="Items container">
     <h1 class="text-center text-muted">Product catalog</h1>
     <div class="row flow-offset-1" id="insertItemsUnder">
-      <div class="col-xs-6 col-md-4">
-        <div class="product tumbnail thumbnail-3"><a href="#"><img src="images/shoes1.jpg"></a>
-          <div class="caption">
-            <button>
+      
+    <!-- <div id="item">
+      <div class="col-xs-6 col-md-4" id="template">
+        <div class="product tumbnail thumbnail-3" id="under-main-template">
+          <img src="images/shoes1.jpg" id="under-main-template-1">
+          <div class="caption" id="under-main-template-1">
+            <button id="under-main-template-2">
               <span class="add-to-cart">Add To Cart</span>
               <i class="fas fa-shopping-cart"></i>
               <i class="fas fa-shopping-bag"></i>
               <span class="added-to-cart">Added To Cart</span>
-            </button>
+            </button> -->
             <!-- added id to item name -->
-            <h6><a href="#" id="itemName">Air Jordan 3 Retro</a></h6><span class="price">
+            <!-- <h6 id="template-item-name"></h6>
+            <span class="price"> -->
               <!-- added id to price -->
-              <del id="itemPrice">$459.99</del></span>
+              <!-- <del id="template-item-price"></del>
+            </span>
           </div>
         </div>
       </div>
+    </div> -->
 
     </div>
   </div>
-  <script>
-  </script>
 </body>
+
+<script type="text/javascript" src="app.js"></script>
+<script type="text/javascript" src="catalog.js"></script>
+<script type="text/javascript" async>
+  window.addEventListener("load", async () => {
+    await setNavBar();
+    await sendDataFromSearch();
+  })
+</script>
+<script async>
+
+
+
+</script>
+
 
 </html>

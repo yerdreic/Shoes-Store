@@ -82,7 +82,7 @@ const Catalog = mongoose.model("ShoesStore.Products", catalogSchema);
 //   const data = await client
 //     .db("ShoesStore")
 //     .collection("Products")
-//     .find()
+//     .find({})
 //     .then((result) => {
 //       let catalog = result.find; //need to edit !!!!
 //       res.send(loggedInUserID);
@@ -262,7 +262,7 @@ app.post("/removeItemFromCart", async (req, res, _next) => {
 });
 
 //get items from DB
-app.get("/getItemsFromDB", async (req, res, _next) => {
+app.post("/getItemsFromDB", async (req, res, _next) => {
   let searchVal = req.body.searchVal;
   console.log("search value from server:", searchVal);
 
@@ -270,12 +270,9 @@ app.get("/getItemsFromDB", async (req, res, _next) => {
     //user was found in db - return it's id
 
     if (searchVal == null) {
-      await client
-        .db("ShoesStore")
-        .collection("Products")
-        .find()
-        .then((productsFromDB) => {
+      await client.db("ShoesStore").collection("Products").find({}).toArray().then((productsFromDB) => {
           console.log("products: ", productsFromDB);
+          res.status(200).json({ productsFromDB });
         });
     } else {
       await client
