@@ -42,7 +42,7 @@ const setNavBar = async () => {
     console.log("errr ", error);
 
     setTimeout(() => {
-      window.alert("Something went wrong.. Soryy");
+      window.alert("Something went wrong.. Sorry");
     }, 3000);
 
     letRedirect("/notSuccessLogin");

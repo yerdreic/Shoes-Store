@@ -198,7 +198,7 @@ app.post("/login", async (req, res, _next) => {
 //adds item to cart for a user
 app.post("/addItemToCart", async (req, res, _next) => {
   //if item already in cart - update it's quantity
-  itemName = req.body.itemName;
+  let itemName = req.body.itemName;
 
   try {
     let productFromDB = await client
@@ -269,8 +269,13 @@ app.post("/getItemsFromDB", async (req, res, _next) => {
   try {
     //user was found in db - return it's id
 
-    if (searchVal == null) {
-      await client.db("ShoesStore").collection("Products").find({}).toArray().then((productsFromDB) => {
+    if (searchVal === null || searchVal === "") {
+      await client
+        .db("ShoesStore")
+        .collection("Products")
+        .find({})
+        .toArray()
+        .then((productsFromDB) => {
           console.log("products: ", productsFromDB);
           res.status(200).json({ productsFromDB });
         });
@@ -279,16 +284,19 @@ app.post("/getItemsFromDB", async (req, res, _next) => {
         .db("ShoesStore")
         .collection("Products")
         .find({ name: { $regex: searchVal } })
+        .toArray()
         .then((productsFromDB) => {
           console.log("products: ", productsFromDB);
-
-          //no products were found
           if (productsFromDB === null) {
             res.status(200).json({ noResults: true });
           } else {
             res.status(200).json({ productsFromDB });
           }
         });
+
+      // productsFromDB = await productsFromDB.json();
+
+      //no products were found
     }
   } catch (error) {
     console.log("ERR: ", error);

@@ -5,18 +5,17 @@
   <link rel="stylesheet" href="https:cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link rel="stylesheet" href="./navbar.css" async>
   <link rel="stylesheet" type="text/css" href="catalog.css" async>
+  <script type="text/javascript" src="app.js"></script>
+  <script type="text/javascript" src="catalog.js"></script>
+  <script type="text/javascript" async>
+    window.onload = async () => {
+      await setNavBar();
+      await sendDataFromSearch();
+    }
+    // document.addEventListener('DOMContentLoaded', async() => {
 
-  <!-- <script async>
-    [
-      'app.js',
-      'catalog.js'
-    ].forEach(function (src) {
-      let script = document.createElement('script');
-      script.src = src;
-      script.async = false;
-      document.head.appendChild(script);
-    });
-  </script> -->
+
+  </script>
 </head>
 
 <body>
@@ -31,14 +30,14 @@
     </nav>
   </div>
   <div class="search-wrapper">
-    <label for="search">Search</label>
+    <lable type="button" for="search" onclick='cleanProductsView();sendDataFromSearch(document.getElementById("search").value);'>Search</lable>
     <input type="search" id="search" data-search>
   </div>
   <div class="Items container">
     <h1 class="text-center text-muted">Product catalog</h1>
     <div class="row flow-offset-1" id="insertItemsUnder">
-      
-    <!-- <div id="item">
+
+      <!-- <div id="item">
       <div class="col-xs-6 col-md-4" id="template">
         <div class="product tumbnail thumbnail-3" id="under-main-template">
           <img src="images/shoes1.jpg" id="under-main-template-1">
@@ -49,11 +48,11 @@
               <i class="fas fa-shopping-bag"></i>
               <span class="added-to-cart">Added To Cart</span>
             </button> -->
-            <!-- added id to item name -->
-            <!-- <h6 id="template-item-name"></h6>
+      <!-- added id to item name -->
+      <!-- <h6 id="template-item-name"></h6>
             <span class="price"> -->
-              <!-- added id to price -->
-              <!-- <del id="template-item-price"></del>
+      <!-- added id to price -->
+      <!-- <del id="template-item-price"></del>
             </span>
           </div>
         </div>
@@ -63,20 +62,5 @@
     </div>
   </div>
 </body>
-
-<script type="text/javascript" src="app.js"></script>
-<script type="text/javascript" src="catalog.js"></script>
-<script type="text/javascript" async>
-  window.addEventListener("load", async () => {
-    await setNavBar();
-    await sendDataFromSearch();
-  })
-</script>
-<script async>
-
-
-
-</script>
-
 
 </html>
