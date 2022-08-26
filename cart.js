@@ -8,20 +8,23 @@ const renderItemsInCart = async () => {
 
     if (loggedIn.isLoggedIn === true) {
       let res = await fetch("/itemsExistInCart", {
-        method: "POST",
+        method: "GET",
         headers: { "Content-Type": "application/json" },
       });
 
       if (!res) {
+        console.log("there is no res from fetch itemsExistInCart");
+
         throw new Error("Somethin went wrong. Please try again");
       }
 
       res = await res.json();
+      console.log("res after json()::", res);
 
       let productsTable = document.getElementById("insertCartItemUnder");
 
       //no items is cart. Add elemnts to document that say that
-      if (!res.itemsInCart) {
+      if (res.itemsInCart === false) {
         let itemsElements = document.querySelectorAll(".d1 > .d2 > .d3");
         let noItems = document.createElement("h1");
         noItems.innerText =
@@ -31,14 +34,14 @@ const renderItemsInCart = async () => {
         //there are items in cart
       }
 
-      if (res.itemsInCart) {
+      if (res.itemsInCart === true) {
         let itemsInCart = res.cartCookie;
+        //let productsFromDB = itemsInCart.productFromDB;
 
-        let arrayItemsInCart = Array.from(itemsInCart);
-        console.log("items in cart:", arrayItemsInCart);
+        console.log("items in cart:", itemsInCart);
         //the products should be in json format.
         //we'll create an element from each product
-        arrayItemsInCart.forEach((item) => {
+        itemsInCart.forEach((item) => {
           //imgSrc = product.image;
           let itemName = item.name;
           let itemPrice = item.price;
@@ -104,7 +107,7 @@ const renderItemsInCart = async () => {
       }
     }
   } catch (error) {
-    console.log("ERR", err);
+    console.log("ERR", error);
     letRedirect("/redirectHome");
   }
 };
@@ -118,6 +121,7 @@ const onClearItemEventHandler = async (clearAllCart) => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
       });
+
     } else {
       res = await fetch("/clearCart", {
         body: JSON.stringify({}),

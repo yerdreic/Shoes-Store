@@ -1,5 +1,6 @@
 //Load HTTP module
 const express = require("express");
+const BSON = require('bson');
 const flash = require("express-flash");
 const path = require("path");
 const hostname = "127.0.0.1";
@@ -198,25 +199,28 @@ app.post("/login", async (req, res, _next) => {
 //adds item to cart for a user
 app.post("/addItemToCart", async (req, res, _next) => {
   //if item already in cart - update it's quantity
-  let itemName = req.body.itemName;
+  let productId = req.body.productId;
+  console.log("productId from server:", productId);
+
+  const objProductId = new BSON.ObjectId(productId);
+  console.log("productId from server:", objProductId);
 
   try {
     let productFromDB = await client
       .db("ShoesStore")
-      .collection("Products")
-      .findOne({ name: itemName });
+      .collection("Products").findOne( { _id : objProductId } );
 
     if (!productFromDB) {
-      throw new Error("No result about this user");
+      throw new Error("No result about this product");
     }
 
-    productFromDB = await productFromDB.json();
+    // productFromDB = await productFromDB.json();
 
     console.log("product: ", productFromDB);
 
     //add the product to a new session
     const currentCart = req.cookies.cart || [];
-    currentCart.push({ productFromDB });
+    currentCart.push(productFromDB);
     res.cookie("cart", currentCart, { maxAge: 30 * 60 * 1000 });
     console.log("FF", req.cookies?.cart);
 
@@ -249,7 +253,7 @@ app.post("/removeItemFromCart", async (req, res, _next) => {
 
     //add the product to a new session
     const currentCart = req.cookies.cart || [];
-    currentCart.push({ productFromDB });
+    currentCart.push(productFromDB); // not correct
     res.cookie("cart", currentCart, { maxAge: 30 * 60 * 1000 });
     console.log("FF", req.cookies?.cart);
 
@@ -283,7 +287,7 @@ app.post("/getItemsFromDB", async (req, res, _next) => {
       await client
         .db("ShoesStore")
         .collection("Products")
-        .find({ name: { $regex: searchVal } })
+        .find({ name: { $regex: searchVal, $options: 'i' } })
         .toArray()
         .then((productsFromDB) => {
           console.log("products: ", productsFromDB);
@@ -305,13 +309,14 @@ app.post("/getItemsFromDB", async (req, res, _next) => {
   }
 });
 
-app.use("/itemsExistInCart", async (req, res) => {
+app.get("/itemsExistInCart", async (req, res) => {
   console.log("cookies", req.cookies?.cart);
 
   if (req.cookies === {} || !req.cookies?.cart) {
     res.status(200).send({ itemsInCart: false });
   } else {
-    let cartCookie = await req.cookies.cart.json();
+    let cartCookie = req.cookies.cart;
+
     res.status(200).send({ itemsInCart: true, cartCookie });
   }
 });

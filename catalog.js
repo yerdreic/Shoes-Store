@@ -37,10 +37,12 @@ const sendDataFromSearch = async (searchVal) => {
         console.log(product.price);
 
         //imgSrc = product.image;
-        productName = product.name;
-        productPrice = product.price;
+        let productName = product.name;
+        let productPrice = product.price;
+        let productId = product._id;
         console.log(productName);
         console.log(productPrice);
+        console.log(productId);
 
         let divItem = document.createElement("div");
         let divClassStyle = document.createElement("div");
@@ -57,11 +59,18 @@ const sendDataFromSearch = async (searchVal) => {
         let buttonAddToCart = document.createElement("button");
         let spanAddToCart = document.createElement("span");
         let spanAddedToCart = document.createElement("span");
-        let iShoppingCart = document.createElement("fas", "fa-shopping-cart");
-        let iShoppingBag = document.createElement("fas", "fa-shopping-bag");
+        let iShoppingCart = document.createElement("i");
+        let iShoppingBag = document.createElement("i");
+        iShoppingCart.classList.add("fas", "fa-shopping-cart");
+        iShoppingBag.classList.add("fas", "fa-shopping-bag");
+        // buttonAddToCart.setAttribute(
+        //   "onclick",
+        //   "addedItemToCartEventHandler("Air Jordan 3 Retro")"
+        // );
+        buttonAddToCart.id = productId;
         buttonAddToCart.setAttribute(
           "onclick",
-          "addedItemToCartEventHandler()"
+          'addedItemToCartEventHandler("'+ productId +'")'
         );
         spanAddToCart.innerText = "Add To Cart";
         spanAddedToCart.innerText = "Added To Cart";
@@ -139,15 +148,16 @@ const sendDataFromSearch = async (searchVal) => {
   }
 };
 
-const addedItemToCartEventHandler = async () => {
+const addedItemToCartEventHandler = async (productId) => {
   let loggedIn = await fetch("/isloggedin");
 
   loggedIn = await loggedIn.json();
 
   console.log(loggedIn);
+  console.log("product ID from catalog.js:", productId);
   if (loggedIn.isLoggedIn === true) {
     await fetch(`/addItemToCart`, {
-      body: JSON.stringify({ itemName }),
+      body: JSON.stringify({ productId }),
       cache: "no-cache",
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -160,13 +170,10 @@ const addedItemToCartEventHandler = async () => {
         console.log("ERR: ", error);
       });
   } else {
-    setTimeout(() => {
-      window.alert(
-        "You must login in order to add this item to cart! Let's go get you logged in!"
-      );
-    }, 3000);
-
-    letRedirect("/");
+    window.alert(
+      "You must login in order to add this item to cart! Let's go get you logged in!"
+    );
+    letRedirect("/login");
   }
 };
 
