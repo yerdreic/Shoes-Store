@@ -41,12 +41,16 @@ const renderItemsInCart = async () => {
         console.log("items in cart:", itemsInCart);
         //the products should be in json format.
         //we'll create an element from each product
+        let totalPrice = 0;
+
         itemsInCart.forEach((item) => {
           //imgSrc = product.image;
           let itemName = item.name;
           let itemPrice = item.price;
           console.log(itemName);
           console.log(itemPrice);
+
+          totalPrice += itemPrice;
 
           // (V :) == WE HAVE IT!)
 
@@ -57,7 +61,9 @@ const renderItemsInCart = async () => {
           // add id of item quantity so we can put inside it quantity from cookies
           // add id of item image so we can put inside it a link from cookies (after we add the name of the image file to db)
           // we have an href for each product - we didn't di a page for each product to be shown on it's own. If we want to do that - the href is ok. Otherwise - delete it
-
+          
+          //EDEN - create item and insert it under a main elemnt for each item taken out of the db.
+          //use the totalPrice variable outside of the loop - and use it under the total element
           let itemNameElement =
             document.getElementsByClassName("product-title");
           itemNameElement.innerText = itemName;
@@ -68,6 +74,8 @@ const renderItemsInCart = async () => {
           let deleteItem = document.getElementsByClassName("remove-from-cart");
           deleteItem.setAttribute("onclick", "onClearItemEventHandler();");
         });
+
+        //Eden - use the total
 
         //     <td class="text-center">
         //     <div class="count-input">
@@ -97,13 +105,13 @@ const renderItemsInCart = async () => {
         //     </div>
         // </td>
       } else {
-        setTimeout(() => {
-          window.alert(
-            "The cart is only available for logged in users.\n You might want to login then..."
-          );
-        }, 3000);
+        window.alert(
+          "The cart is only available for logged in users.\n You might want to login then..."
+        );
 
-        letRedirect("/notSuccessLogin");
+        setTimeout(() => {
+          letRedirect("/notSuccessLogin");
+        }, 3000);
       }
     }
   } catch (error) {
@@ -133,22 +141,21 @@ const onClearItemEventHandler = async (clearAllCart) => {
     res = await res.json();
     //cart was successfully cleared
     if (res.cookiesWereCleared) {
-      letRedirect("/successClearCart");
+      window.alert("Cart was cleared successfully.");
 
       setTimeout(() => {
-        window.alert("Cart was cleared successfully.");
+        letRedirect("/successClearCart");
       }, 3000);
     } else {
       throw new Error("Something went wrong, we are sorry");
     }
   } catch (error) {
     console.log("err ", error);
+    window.alert(error);
 
     setTimeout(() => {
-      window.alert(error);
+      letRedirect("/redirectHome");
     }, 3000);
-
-    letRedirect("/redirectHome");
   }
 };
 

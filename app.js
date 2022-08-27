@@ -22,16 +22,28 @@ const setNavBar = async () => {
 
     let jsonRes = await res.json();
 
+
+
+    // let userName = email.substr(0, email.indexOf('@')); 
+
     if (res.status === 200 && jsonRes.isLoggedIn === true) {
       // logged in
+      let email = jsonRes.userCookie.email;
+      let userName = email.substring(0, email.indexOf("@"));
+      console.log("from app.js:", userName);
+
       const cartLine = document.createElement("li");
       cartLine.innerHTML = '<a href="./cart.html">Cart</a>';
       nav.appendChild(cartLine);
 
       const logoutLine = document.createElement("li");
       logoutLine.innerHTML = '<a href="/logout">Logout</a>';
+      const nameElement = document.createElement("li");
+      nameElement.innerText = `Hello, ${userName}`;
 
       nav.appendChild(logoutLine);
+      nav.appendChild(nameElement);
+
     } else {
       // not logged in
       const loginLine = document.createElement("li");
@@ -39,17 +51,14 @@ const setNavBar = async () => {
       nav.appendChild(loginLine);
     }
   } catch (error) {
-    console.log("errr ", error);
+    console.log("ERR: ", error);
+    window.alert("Something went wrong.. Sorry");
 
     setTimeout(() => {
-      window.alert("Something went wrong.. Sorry");
+      letRedirect("/notSuccessLogin");
     }, 3000);
-
-    letRedirect("/notSuccessLogin");
-
   }
 };
-
 
 const onClickLoginEventHandler = async () => {
   const email = document.getElementById("Uname").value;
@@ -86,16 +95,19 @@ const onClickLoginEventHandler = async () => {
     if (res.emailExists && !res.passwordExists) {
       // only email was found
       window.alert("Wrong password. Please try again.");
-      letRedirect(`/notSuccessLogin`);
+
+      setTimeout(() => {
+        letRedirect("/notSuccessLogin");
+      }, 3000);
     }
+
   } catch (error) {
     console.log("errr ", error);
+    window.alert("Login failed. Please try again");
 
     setTimeout(() => {
-      window.alert("Login failed. Please try again");
+      letRedirect("/notSuccessLogin");
     }, 3000);
-
-    letRedirect("/notSuccessLogin");
   }
 };
 
@@ -117,27 +129,26 @@ const onClickRegisterEventHandler = async () => {
     res = await res.json();
 
     if (res.emailExists) {
+      window.alert("Sorry, that email is taken. Maybe you need to login");
+
       setTimeout(() => {
-        window.alert("Sorry, that email is taken. Maybe you need to login");
+        letRedirect(`/notSuccessLogin`);
       }, 3000);
-  
-      letRedirect(`/notSuccessLogin`);
     }
 
     if (res.newUserWasAdded === true) {
-      setTimeout(() => {
-        window.alert("New user was created. Please login");
-      }, 3000);
+      window.alert("New user was created. Please login");
 
-      letRedirect(`/successLogin`);
+      setTimeout(() => {
+        letRedirect(`/successLogin`);
+      }, 3000);
     }
   } catch (error) {
     console.log("ERR ", error);
+    window.alert("Register failed. Please try again");
 
     setTimeout(() => {
-      window.alert("Register failed. Please try again");
+      letRedirect("/redirectHome");
     }, 3000);
-
-    letRedirect("/redirectHome");
   }
 };

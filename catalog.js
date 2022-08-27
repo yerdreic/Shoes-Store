@@ -6,7 +6,6 @@ const cleanProductsView = () => {
 };
 
 const sendDataFromSearch = async (searchVal) => {
-  console.log("search val:", searchVal);
   searchVal = searchVal === undefined ? null : searchVal;
   console.log("search val:", searchVal);
 
@@ -39,6 +38,7 @@ const sendDataFromSearch = async (searchVal) => {
         //imgSrc = product.image;
         let productName = product.name;
         let productPrice = product.price;
+        let productImage = product.image;
         let productId = product._id;
         console.log(productName);
         console.log(productPrice);
@@ -53,7 +53,7 @@ const sendDataFromSearch = async (searchVal) => {
         divClassStyle.classList.add("col-xs-6", "col-md-4");
         divClassProduct.classList.add("product", "tumbnail", "thumbnail-3");
         //chnage the src of the image to the name from the db
-        itemImg.setAttribute("src", "images/shoes1.jpg");
+        itemImg.src = "images/"+productImage;
         divClassCaption.classList.add("caption");
 
         let buttonAddToCart = document.createElement("button");
@@ -63,14 +63,10 @@ const sendDataFromSearch = async (searchVal) => {
         let iShoppingBag = document.createElement("i");
         iShoppingCart.classList.add("fas", "fa-shopping-cart");
         iShoppingBag.classList.add("fas", "fa-shopping-bag");
-        // buttonAddToCart.setAttribute(
-        //   "onclick",
-        //   "addedItemToCartEventHandler("Air Jordan 3 Retro")"
-        // );
         buttonAddToCart.id = productId;
         buttonAddToCart.setAttribute(
           "onclick",
-          'addedItemToCartEventHandler("'+ productId +'")'
+          'addedItemToCartEventHandler("' + productId + '")'
         );
         spanAddToCart.innerText = "Add To Cart";
         spanAddedToCart.innerText = "Added To Cart";
@@ -139,41 +135,47 @@ const sendDataFromSearch = async (searchVal) => {
     }
   } catch (error) {
     console.log("err ", error);
+    window.alert("RES.JSON is failed!!");
 
     setTimeout(() => {
-      window.alert("RES.JSON is failed!!");
+      letRedirect("/redirectHome");
     }, 3000);
-
-    letRedirect("/redirectHome");
   }
 };
 
 const addedItemToCartEventHandler = async (productId) => {
-  let loggedIn = await fetch("/isloggedin");
+  try {
+    let loggedIn = await fetch("/isloggedin");
 
-  loggedIn = await loggedIn.json();
+    loggedIn = await loggedIn.json();
 
-  console.log(loggedIn);
-  console.log("product ID from catalog.js:", productId);
-  if (loggedIn.isLoggedIn === true) {
-    await fetch(`/addItemToCart`, {
-      body: JSON.stringify({ productId }),
-      cache: "no-cache",
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-    })
-      .then((res) => {
-        window.alert("item was added to cart!");
-        //we can add here 2 buttons - "go to cart" and "continue shopping"
-      })
-      .catch((error) => {
-        console.log("ERR: ", error);
+    console.log(loggedIn);
+    console.log("product ID from catalog.js:", productId);
+    console.log("user ID from catalog.js:", loggedIn.userCookie);
+
+    if (loggedIn.isLoggedIn === true) {
+      let res = await fetch(`/addItemToCart`, {
+        body: JSON.stringify({ productId, user: loggedIn.userCookie }),
+        cache: "no-cache",
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
       });
-  } else {
-    window.alert(
-      "You must login in order to add this item to cart! Let's go get you logged in!"
-    );
-    letRedirect("/login");
+
+      if (res) {
+        window.alert("item was added to cart!");
+      }
+    }
+  } catch {
+    (error) => {
+      console.log("ERR: ", error);
+      window.alert(
+        "You must login in order to add this item to cart! Let's go get you logged in!"
+      );
+
+      setTimeout(() => {
+        letRedirect("/login");
+      }, 3000);
+    };
   }
 };
 

@@ -1,6 +1,6 @@
 //Load HTTP module
 const express = require("express");
-const BSON = require('bson');
+const BSON = require("bson");
 const flash = require("express-flash");
 const path = require("path");
 const hostname = "127.0.0.1";
@@ -15,6 +15,7 @@ const { MongoClient } = require("mongodb");
 const app = express();
 const cookieParser = require("cookie-parser");
 const cookieSession = require("cookie-session");
+const { query } = require("express");
 
 app.set("trust proxy", 1); // trust first proxy
 
@@ -48,98 +49,86 @@ async function main() {
 
 main().catch(console.error);
 
-const userExists = client
-  .db("ShoesStore")
-  .collection("Users")
-  .findOne({ email: "example@example.com" });
-if (!userExists) {
-  client.db("ShoesStore").collection("Users").insertOne({
-    email: req.body.email,
-    password: req.body.password,
-  });
-}
+// const userExists = await client
+//   .db("ShoesStore")
+//   .collection("Users")
+//   .findOne({ email: "example@example.com" });
+// if (!userExists) {
+//   client.db("ShoesStore").collection("Users").insertOne({
+//     email: req.body.email,
+//     password: req.body.password,
+//   });
+// }
+const cartCellSchema = new mongoose.Schema({
+  product: Object,
+  addedTime: String,
+});
 
-const catalogSchema = new mongoose.Schema({
-  _id: {
+const userSchema = new mongoose.Schema({
+  email: {
     type: String,
     required: true,
   },
-  name: {
-    type: String,
-    required: true,
-  },
-  price: {
+  password: {
     type: Number,
     required: true.valueOf,
   },
-  photo: {
-    type: String,
-  },
+  cart: [[cartCellSchema]],
 });
 
-const Catalog = mongoose.model("ShoesStore.Products", catalogSchema);
-
-// app.use("/catalog", async (req, res) => {
-//   const data = await client
-//     .db("ShoesStore")
-//     .collection("Products")
-//     .find({})
-//     .then((result) => {
-//       let catalog = result.find; //need to edit !!!!
-//       res.send(loggedInUserID);
-//       res.send(data);
-//     });
-// });
+const userModel = mongoose.model("Users", userSchema);
 
 app.get("/isloggedin", async (req, res) => {
-  console.log("FF", req.cookies?.session);
 
   if (req.cookies === {} || !req.cookies?.session) {
+
     res.status(401).send({ isLoggedIn: false });
+
   } else {
-    res.status(200).send({ isLoggedIn: true });
+    let userCookie = req.cookies.session;
+    console.log(userCookie);
+
+    res.status(200).send({ isLoggedIn: true, userCookie });
   }
+
 });
 
 app.post("/register", async (req, res, next) => {
-  let newUser = null;
-  console.log("in register");
+  let user = null;
+  console.log("in register in server");
 
-  await client
-    .db("ShoesStore")
-    .collection("Users")
-    .findOne({ $or: [{ email: req.body.email }] })
-    .then((foundEmailInDB) => {
-      if (foundEmailInDB) {
-        console.log("USER: ", foundEmailInDB);
-        return res.status(200).send({ emailExists: true });
-      } else {
-        newUser = {
-          email: req.body.email,
-          password: req.body.password,
-        };
-      }
-    })
-    .catch((error) => {
-      console.log("ERR: ", error);
-      // email not found / error
-      return res.redirect("/login.html");
-    });
-
-  if (newUser !== null) {
-    await client
+  try {
+    let foundEmailInDB = await client
       .db("ShoesStore")
       .collection("Users")
-      .insertOne({ newUser })
-      .then((newUserAfterInsert) => {
-        let newUserID = newUserAfterInsert._id;
-        res.cookie(
-          "session",
-          { userID: newUserID },
-          { maxAge: 30 * 60 * 1000 }
-        );
-        return res.status(200).json({ newUserWasAdded: true });
-      });
+      .findOne({ $or: [{ email: req.body.email }] });
+
+    if (foundEmailInDB) {
+      console.log("USER: ", foundEmailInDB);
+      return res.status(200).send({ emailExists: true });
+    } else {
+      user = {
+        email: req.body.email,
+        password: req.body.password,
+        cart: new Array(null),
+      };
+    }
+
+    if (user !== null) {
+      await client
+        .db("ShoesStore")
+        .collection("Users")
+        .insertOne({ user })
+        .then((newUserAfterInsert) => {
+          // let newUserID = newUserAfterInsert._id;
+
+          return res.status(200).json({ newUserWasAdded: true });
+        });
+    }
+  } catch (error) {
+    console.log("ERR: ", error);
+    // email not found / error
+    return res.redirect("/login.html");
   }
 });
 
@@ -151,44 +140,49 @@ app.post("/login", async (req, res, _next) => {
 
   try {
     //user was found in db - return it's id
-    await client
+    let userFromDB = await client
       .db("ShoesStore")
       .collection("Users")
-      .findOne({ $or: [{ email: user.email }, { password: user.password }] })
-      .then((userFromDB) => {
-        console.log("USER: ", userFromDB);
+      .findOne({ $or: [{ email: user.email }, { password: user.password }] });
 
-        //userFromDB = await userFromDB.json();
+    console.log("USER: ", userFromDB);
 
-        if (userFromDB === null) {
-          console.log("user is null");
-          res.status(200).json({ emailExists: false, passwordExists: false });
-        }
+    //userFromDB = await userFromDB.json();
 
-        if (user.password === userFromDB.password) {
-          // fully logged in
-          let loggedInUserID = userFromDB._id;
-          //rememberme was checked - remember for 30 days
+    if (userFromDB === null) {
+      console.log("user is null");
+      res.status(200).json({ emailExists: false, passwordExists: false });
+    }
 
-          if (req.body.rememberMe !== null) {
-            console.log("remember me isn't null");
-            res.cookie(
-              "session",
-              { userID: loggedInUserID },
-              { maxAge: 10 * 60 * 12 * 1000 }
-            );
-            //rememberme wasn't checked
-          } else {
-            console.log("alllll null");
-            res.cookie(
-              "session",
-              { userID: loggedInUserID },
-              { maxAge: 60 * 30 * 1000 }
-            );
-          }
-          res.status(200).json({ emailExists: true, passwordExists: true });
-        }
-      });
+    if (user.password === userFromDB.password) {
+      // fully logged in
+      let loggedInUserID = userFromDB._id;
+      //rememberme was checked - remember for 30 days
+
+      if (req.body.rememberMe !== null) {
+        console.log("remember me isn't null");
+        res.cookie(
+          "session",
+          { userID: loggedInUserID, email: user.email },
+          { maxAge: 864000 }
+        );
+        //rememberme wasn't checked
+      } else {
+        console.log("null");
+        res.cookie(
+          "session",
+          { userID: loggedInUserID, email: user.email },
+          { maxAge: 1800 }
+        );
+      }
+      //insert event of logging in to the events
+      await client
+        .db("ShoesStore")
+        .collection("Events")
+        .insertOne({ login: user.email });
+
+      res.status(200).json({ emailExists: true, passwordExists: true });
+    }
   } catch (error) {
     console.log("ERR: ", error);
     // email not found / error
@@ -196,27 +190,143 @@ app.post("/login", async (req, res, _next) => {
   }
 });
 
+app.post("/addNewProductToDB", async (req, res, next) => {
+  let product = null;
+  console.log("in addingNewProductToDB from server");
+  try {
+    let nameAlreadyExist = await client
+      .db("ShoesStore")
+      .collection("Products")
+      .findOne({ $or: [{ name: req.body.name }] });
+
+    if (nameAlreadyExist) {
+      console.log("product: ", nameAlreadyExist);
+      return res.status(200).send({ nameAlreadyExist: true });
+    } else {
+      product = {
+        name: req.body.name,
+        price: req.body.price,
+        image: req.body.image,
+      };
+    }
+
+    if (nameAlreadyExist !== null) {
+      let newProductAfterInsert = await client
+        .db("ShoesStore")
+        .collection("Products")
+        .insertOne({ product });
+
+      if (newProductAfterInsert) {
+        return res.status(200).json({ newProductWasAdded: true });
+      } else {
+        throw new Error("Something went wrond. Please try again");
+      }
+    }
+  } catch (error) {
+    console.log("ERR: ", error);
+    // email not found / error
+    return res.redirect("/index.html");
+  }
+});
+
+app.post("/removeProductFromDB", async (req, res, next) => {
+  let product = null;
+  console.log("in removeProductFromDB from server");
+  try {
+    let nameExistsInDB = await client
+      .db("ShoesStore")
+      .collection("Products")
+      .findOne({ $or: [{ name: req.body.name }] });
+
+    if (!nameExistsInDB) {
+      console.log("product: ", nameExistsInDB);
+      return res.status(200).send({ nameExistsInDB: false });
+    } else {
+      let deleteProduct = await client
+        .db("ShoesStore")
+        .collection("Products")
+        .deleteOne({ product });
+
+      if (deleteProduct) {
+        return res.status(200).json({ productWasDeleted: true });
+      } else {
+        throw new Error("Something went wrong. Please try again");
+      }
+    }
+  } catch (error) {
+    console.log("ERR: ", error);
+    // email not found / error
+    return res.redirect("/index.html");
+  }
+});
+
 //adds item to cart for a user
 app.post("/addItemToCart", async (req, res, _next) => {
   //if item already in cart - update it's quantity
   let productId = req.body.productId;
+  let user = req.body.user;
   console.log("productId from server:", productId);
 
   const objProductId = new BSON.ObjectId(productId);
-  console.log("productId from server:", objProductId);
+  const objUserId = new BSON.ObjectId(user._id);
+  console.log("objproductId from server:", objProductId);
 
   try {
     let productFromDB = await client
       .db("ShoesStore")
-      .collection("Products").findOne( { _id : objProductId } );
+      .collection("Products")
+      .findOne({ _id: objProductId });
 
     if (!productFromDB) {
       throw new Error("No result about this product");
     }
 
+    let today = new Date();
+    let addeTime =
+      today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+
+    // let res = await client
+    //   .db("ShoesStore")
+    //   .collection("Users")
+    //   .findOne({ email: user.email });
+
+    // res.cart = user.cart + { productFromDB, addeTime };
+    // await client.db("ShoesStore").collection("Users").save(user);
+
+    let updatedUser = await client
+      .db("ShoesStore")
+      .collection("Users")
+      .findOneAndUpdate(
+        //at the moment, it overrides the last element in cart. Needs to be appended
+        { email: user.email },
+        {
+          $set: {
+            cart: {
+              $push: {
+                product: productFromDB,
+                addedTime: addeTime,
+              },
+            },
+          },
+        }
+      );
+
+    // .db("ShoesStore")
+    // .collection("Users")
+    // .updateOne(
+    //   { email: user.email },
+    //   {$set: { cart : {$push: [{ productFromDB}, {addeTime } ] } } }
+    // );
+
+    if (!updatedUser) {
+      throw new Error("No result about this user");
+    }
+    console.log("updatedUser: ", updatedUser);
+
     // productFromDB = await productFromDB.json();
 
     console.log("product: ", productFromDB);
+    console.log("updatedUser: ", updatedUser);
 
     //add the product to a new session
     const currentCart = req.cookies.cart || [];
@@ -265,6 +375,49 @@ app.post("/removeItemFromCart", async (req, res, _next) => {
   }
 });
 
+app.post("/getUsersFromDB", async (req, res, _next) => {
+  let searchVal = req.body.searchVal;
+  console.log("search value from server:", searchVal);
+
+  try {
+    //user was found in db - return it's id
+
+    if (searchVal === null || searchVal === "") {
+      await client
+        .db("ShoesStore")
+        .collection("Users")
+        .find({})
+        .toArray()
+        .then((usersFromDB) => {
+          console.log("users: ", usersFromDB);
+          res.status(200).json({ usersFromDB });
+        });
+    } else {
+      await client
+        .db("ShoesStore")
+        .collection("Users")
+        .find({ email: { $regex: searchVal, $options: "i" } })
+        .toArray()
+        .then((usersFromDB) => {
+          console.log("users: ", usersFromDB);
+          if (productsFromDB === null) {
+            res.status(200).json({ noResults: true });
+          } else {
+            res.status(200).json({ usersFromDB });
+          }
+        });
+
+      // productsFromDB = await productsFromDB.json();
+
+      //no products were found
+    }
+  } catch (error) {
+    console.log("ERR: ", error);
+    // email not found / error
+    return res.redirect("/login.html");
+  }
+});
+
 //get items from DB
 app.post("/getItemsFromDB", async (req, res, _next) => {
   let searchVal = req.body.searchVal;
@@ -287,7 +440,7 @@ app.post("/getItemsFromDB", async (req, res, _next) => {
       await client
         .db("ShoesStore")
         .collection("Products")
-        .find({ name: { $regex: searchVal, $options: 'i' } })
+        .find({ name: { $regex: searchVal, $options: "i" } })
         .toArray()
         .then((productsFromDB) => {
           console.log("products: ", productsFromDB);
@@ -318,6 +471,28 @@ app.get("/itemsExistInCart", async (req, res) => {
     let cartCookie = req.cookies.cart;
 
     res.status(200).send({ itemsInCart: true, cartCookie });
+  }
+});
+
+app.get("/getEventsFromDB", async (req, res) => {
+  try {
+    let eventsFromDB = await client
+      .db("ShoesStore")
+      .collection("Events")
+      .find({})
+      .toArray();
+
+    console.log("products: ", productsFromDB);
+
+    if (eventsFromDB === null) {
+      res.status(200).json({ noResults: true });
+    } else {
+      res.status(200).json({ eventsFromDB });
+    }
+  } catch (error) {
+    console.log("ERR: ", error);
+    // email not found / error
+    return res.redirect("/admin.html");
   }
 });
 
@@ -363,9 +538,17 @@ app.get("/register", (req, res) => {
   res.render("register.html");
 });
 
-app.get("/logout", (req, res) => {
+app.get("/logout", async (req, res) => {
+  let loggedInUserEmail = req.cookies.session.email;
+
+  await client
+    .db("ShoesStore")
+    .collection("Events")
+    .insertOne({ logout: loggedInUserEmail });
+
   res.clearCookie("session");
   res.clearCookie("cart");
+
   res.redirect("/index.html");
 });
 
