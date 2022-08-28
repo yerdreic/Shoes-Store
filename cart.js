@@ -55,7 +55,7 @@ const renderItemsInCart = async () => {
         itemsInCart.forEach((item) => {
           //item is [product, productCount]
           let imgSrc = item.product.image;
-          //not sure if itemID is needed
+          //not sure if itemID is needed here
           let itemID = item.product.id;
           let itemName = item.product.name;
           let itemPrice = item.product.price * itemCount;
