@@ -79,18 +79,14 @@ const userSchema = new mongoose.Schema({
 const userModel = mongoose.model("Users", userSchema);
 
 app.get("/isloggedin", async (req, res) => {
-
   if (req.cookies === {} || !req.cookies?.session) {
-
     res.status(401).send({ isLoggedIn: false });
-
   } else {
     let userCookie = req.cookies.session;
     console.log(userCookie);
 
     res.status(200).send({ isLoggedIn: true, userCookie });
   }
-
 });
 
 app.post("/register", async (req, res, next) => {
@@ -159,8 +155,8 @@ app.post("/login", async (req, res, _next) => {
       let loggedInUserID = userFromDB._id;
       //rememberme was checked - remember for 30 days
 
-      if (req.body.rememberMe !== null) {
-        console.log("remember me isn't null");
+      if (req.body.rememberMe === false) {
+        console.log("remember me is false");
         res.cookie(
           "session",
           { userID: loggedInUserID, email: user.email },
@@ -168,7 +164,7 @@ app.post("/login", async (req, res, _next) => {
         );
         //rememberme wasn't checked
       } else {
-        console.log("null");
+        console.log("remember me is true");
         res.cookie(
           "session",
           { userID: loggedInUserID, email: user.email },
@@ -299,17 +295,7 @@ app.post("/addItemToCart", async (req, res, _next) => {
       .findOneAndUpdate(
         //at the moment, it overrides the last element in cart. Needs to be appended
         { email: user.email },
-        {
-          $set: {
-            cart: {
-              $push: {
-                product: productFromDB,
-                addedTime: addeTime,
-              },
-            },
-          },
-        }
-      );
+        { $set: { cart: [ { product: productFromDB } ] } } );
 
     // .db("ShoesStore")
     // .collection("Users")
@@ -330,11 +316,18 @@ app.post("/addItemToCart", async (req, res, _next) => {
 
     //add the product to a new session
     const currentCart = req.cookies.cart || [];
-    currentCart.push(productFromDB);
-    res.cookie("cart", currentCart, { maxAge: 30 * 60 * 1000 });
-    console.log("FF", req.cookies?.cart);
+    const productCount = 1;
 
-    res.status(200).json({ productFromDB });
+    if (currentCart.includes(productFromDB._id)) {
+      productCount += 1;
+      res.status(200).json({ productFromDB, productCount });
+    } else {
+      currentCart.push(productFromDB);
+      // products are saved for 10 days in cart, unless user logges out
+      res.cookie("cart", currentCart, { maxAge: 864000 });
+
+      res.status(200).json({ productFromDB, productCount });
+    }
   } catch (error) {
     console.log("ERR: ", error);
     // email not found / error

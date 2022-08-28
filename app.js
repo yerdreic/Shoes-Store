@@ -63,7 +63,7 @@ const setNavBar = async () => {
 const onClickLoginEventHandler = async () => {
   const email = document.getElementById("Uname").value;
   const password = document.getElementById("Pass").value;
-  const rememberMe = document.getElementById("register").value;
+  const rememberMe = document.getElementById("check").checked;
 
   try {
     let res = await fetch(`/login`, {
