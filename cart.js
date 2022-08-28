@@ -25,16 +25,17 @@ const renderItemsInCart = async () => {
 
       //no items is cart. Add elemnts to document that say that
       if (res.itemsInCart === false) {
-        let itemsElements = document.querySelectorAll(".d1 > .d2 > .d3");
         let noItems = document.createElement("h1");
+        let catalog = document.createElement("h1");
         noItems.innerText =
           'no items in cart yet. click on "go to catalog" to add some items!';
-        noItems.innerHTML = '<a href="./catalog.html">go to catalog</a>';
+        catalog.innerHTML = '<a href="./catalog.html">go to catalog</a>';
         productsTable.appendChild(noItems);
+        productsTable.appendChild(catalog);
         //there are items in cart
       }
 
-      if (res.itemsInCart === true) {
+      else if (res.itemsInCart === true) {
         let itemsInCart = res.cartCookie;
         //let productsFromDB = itemsInCart.productFromDB;
 
@@ -42,15 +43,31 @@ const renderItemsInCart = async () => {
         //the products should be in json format.
         //we'll create an element from each product
         let totalPrice = 0;
+        // items in cart looks as follows:
+        // 0:
+        //   count: 2
+        //   product: {_id: '62e8d2cd3e823c948203ca4f', name: 'Air Jordan 3 Retro', price: 399.99, image: 'shoes1.jpg'}
+
+        // 1:
+        //   count: 1
+        //   product: {_id: '62e91a043e823c948203ca51', name: 'PG 6', price: 220, image: 'shoes2.jpg'}
 
         itemsInCart.forEach((item) => {
-          //imgSrc = product.image;
-          let itemName = item.name;
-          let itemPrice = item.price;
-          console.log(itemName);
-          console.log(itemPrice);
-
+          //item is [product, productCount]
+          let imgSrc = item.product.image;
+          //not sure if itemID is needed
+          let itemID = item.product.id;
+          let itemName = item.product.name;
+          let itemPrice = item.product.price * itemCount;
+          let itemCount = item.count;
           totalPrice += itemPrice;
+
+          console.log("imgSrc:", imgSrc);
+          console.log("itemName:", itemName);
+          console.log("itemPrice:", itemPrice);
+          console.log("itemCount:", itemCount);
+          console.log("totalPrice:", totalPrice);
+
 
           // (V :) == WE HAVE IT!)
 
@@ -64,15 +81,15 @@ const renderItemsInCart = async () => {
           
           //EDEN - create item and insert it under a main elemnt for each item taken out of the db.
           //use the totalPrice variable outside of the loop - and use it under the total element
-          let itemNameElement =
-            document.getElementsByClassName("product-title");
-          itemNameElement.innerText = itemName;
+          // let itemNameElement =
+          //   document.getElementsByClassName("product-title");
+          // itemNameElement.innerText = itemName;
 
-          let itemPriceElement = document.getElementById("itemPrice");
-          itemPriceElement.innerText = itemPrice;
+          // let itemPriceElement = document.getElementById("itemPrice");
+          // itemPriceElement.innerText = itemPrice;
 
-          let deleteItem = document.getElementsByClassName("remove-from-cart");
-          deleteItem.setAttribute("onclick", "onClearItemEventHandler();");
+          // let deleteItem = document.getElementsByClassName("remove-from-cart");
+          // deleteItem.setAttribute("onclick", "onClearItemEventHandler();");
         });
 
         //Eden - use the total

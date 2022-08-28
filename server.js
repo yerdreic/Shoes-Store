@@ -73,7 +73,9 @@ const userSchema = new mongoose.Schema({
     type: Number,
     required: true.valueOf,
   },
-  cart: [[cartCellSchema]],
+  cart: {
+    type: Object,
+  },
 });
 
 const userModel = mongoose.model("Users", userSchema);
@@ -97,7 +99,7 @@ app.post("/register", async (req, res, next) => {
     let foundEmailInDB = await client
       .db("ShoesStore")
       .collection("Users")
-      .findOne({ $or: [{ email: req.body.email }] });
+      .findOne({ $or: [{ email: req.body.email }, {password: null}] });
 
     if (foundEmailInDB) {
       console.log("USER: ", foundEmailInDB);
@@ -160,7 +162,7 @@ app.post("/login", async (req, res, _next) => {
         res.cookie(
           "session",
           { userID: loggedInUserID, email: user.email },
-          { maxAge: 864000 }
+          { maxAge: 864000000 }
         );
         //rememberme wasn't checked
       } else {
@@ -168,7 +170,7 @@ app.post("/login", async (req, res, _next) => {
         res.cookie(
           "session",
           { userID: loggedInUserID, email: user.email },
-          { maxAge: 1800 }
+          { maxAge: 1800000 }
         );
       }
       //insert event of logging in to the events
@@ -281,21 +283,14 @@ app.post("/addItemToCart", async (req, res, _next) => {
     let addeTime =
       today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
 
-    // let res = await client
-    //   .db("ShoesStore")
-    //   .collection("Users")
-    //   .findOne({ email: user.email });
-
-    // res.cart = user.cart + { productFromDB, addeTime };
-    // await client.db("ShoesStore").collection("Users").save(user);
-
     let updatedUser = await client
       .db("ShoesStore")
       .collection("Users")
       .findOneAndUpdate(
         //at the moment, it overrides the last element in cart. Needs to be appended
         { email: user.email },
-        { $set: { cart: [ { product: productFromDB } ] } } );
+        { $set: { cart: { $push: { product: productFromDB } } } }
+      );
 
     // .db("ShoesStore")
     // .collection("Users")
@@ -309,24 +304,48 @@ app.post("/addItemToCart", async (req, res, _next) => {
     }
     console.log("updatedUser: ", updatedUser);
 
-    // productFromDB = await productFromDB.json();
+    //productFromDB = await productFromDB.json();
 
     console.log("product: ", productFromDB);
     console.log("updatedUser: ", updatedUser);
 
     //add the product to a new session
     const currentCart = req.cookies.cart || [];
-    const productCount = 1;
+    ;
+    // const productCount = 1;
+    let productWasFoundInCookies = false;
+    let i = -1;
+    console.log("current cart:", currentCart);
 
-    if (currentCart.includes(productFromDB._id)) {
-      productCount += 1;
-      res.status(200).json({ productFromDB, productCount });
-    } else {
-      currentCart.push(productFromDB);
-      // products are saved for 10 days in cart, unless user logges out
-      res.cookie("cart", currentCart, { maxAge: 864000 });
+    currentCart.forEach((product) => {
+      console.log("cookie:", req.cookies.cart.valueOf());
+      i += 1;
+      // let productId = new BSON.ObjectId(product[0]._id);
+      console.log("productID:", product.product._id);
+      console.log("productID FROM DB:", productFromDB._id.valueOf());
 
-      res.status(200).json({ productFromDB, productCount });
+      if (product.product._id.valueOf() == productFromDB._id.valueOf()) {
+        //product[1] is productCount
+        productWasFoundInCookies = true;
+        req.cookies.cart[i].count += 1;
+        res.cookie("cart", currentCart, { maxAge: 1800000 });
+        // console.log("COUNT VAL:", res.cookie.cart);
+        res.status(200).json({ productFromDB });
+      }
+    });
+
+    if (productWasFoundInCookies === false) {
+      // currentCart.push([productFromDB, 1]);
+      // products are saved for 30 minutes in cart, unless user logges out
+      if (currentCart === []) {
+        res.cookie("cart", { product: productFromDB, count: 1 }, { maxAge: 1800000 });
+
+      } else {
+        currentCart.push({ product: productFromDB, count: 1 })
+        res.cookie("cart", currentCart , { maxAge: 1800000 });  
+      }
+      // console.log(res.cookie.cart.valueOf());
+      res.status(200).json({ productFromDB });
     }
   } catch (error) {
     console.log("ERR: ", error);
@@ -356,11 +375,18 @@ app.post("/removeItemFromCart", async (req, res, _next) => {
 
     //add the product to a new session
     const currentCart = req.cookies.cart || [];
-    currentCart.push(productFromDB); // not correct
-    res.cookie("cart", currentCart, { maxAge: 30 * 60 * 1000 });
-    console.log("FF", req.cookies?.cart);
+    currentCart.forEach((product) => {
+      console.log("productID:", product[0]._id);
 
-    res.status(200).json({ productFromDB });
+      if (product[0]._id === productFromDB._id) {
+        //product[1] is productCount
+        // req.cookies.cart.product.remove();
+        console.log("removed product from cart\n");
+        res.status(200).json({ productFromDB });
+      } else {
+        throw new Error("Something went wrong.. please try again");
+      }
+    });
   } catch (error) {
     console.log("ERR: ", error);
     // email not found / error
@@ -457,12 +483,12 @@ app.post("/getItemsFromDB", async (req, res, _next) => {
 
 app.get("/itemsExistInCart", async (req, res) => {
   console.log("cookies", req.cookies?.cart);
+  console.log("cookies", req.cookies?.session);
 
   if (req.cookies === {} || !req.cookies?.cart) {
     res.status(200).send({ itemsInCart: false });
   } else {
-    let cartCookie = req.cookies.cart;
-
+    let cartCookie = req.cookies?.cart;
     res.status(200).send({ itemsInCart: true, cartCookie });
   }
 });
@@ -532,7 +558,7 @@ app.get("/register", (req, res) => {
 });
 
 app.get("/logout", async (req, res) => {
-  let loggedInUserEmail = req.cookies.session.email;
+  let loggedInUserEmail = req.cookies?.session.email;
 
   await client
     .db("ShoesStore")
