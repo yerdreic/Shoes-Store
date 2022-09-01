@@ -99,7 +99,7 @@ app.post("/register", async (req, res, next) => {
     let foundEmailInDB = await client
       .db("ShoesStore")
       .collection("Users")
-      .findOne({ $or: [{ email: req.body.email }, {password: null}] });
+      .findOne({ $or: [{ email: req.body.email }, { password: null }] });
 
     if (foundEmailInDB) {
       console.log("USER: ", foundEmailInDB);
@@ -190,35 +190,40 @@ app.post("/login", async (req, res, _next) => {
 
 app.post("/addNewProductToDB", async (req, res, next) => {
   let product = null;
-  console.log("in addingNewProductToDB from server");
+  let name = req.body.name
+
+  console.log("in addingNewProductToDB from server, name:". name);
+
   try {
     let nameAlreadyExist = await client
       .db("ShoesStore")
       .collection("Products")
-      .findOne({ $or: [{ name: req.body.name }] });
+      .findOne({ name: req.body.name });
 
     if (nameAlreadyExist) {
       console.log("product: ", nameAlreadyExist);
       return res.status(200).send({ nameAlreadyExist: true });
     } else {
-      product = {
-        name: req.body.name,
-        price: req.body.price,
-        image: req.body.image,
-      };
+      // product = {
+      //   name: req.body.name,
+      //   price: req.body.price,
+      //   image: req.body.image,
+      // };
     }
 
-    if (nameAlreadyExist !== null) {
-      let newProductAfterInsert = await client
-        .db("ShoesStore")
-        .collection("Products")
-        .insertOne({ product });
+    let newProductAfterInsert = await client
+      .db("ShoesStore")
+      .collection("Products")
+      .insertOne(
+        { name: req.body.name },
+        { price: req.body.price },
+        { image: req.body.image }
+      );
 
-      if (newProductAfterInsert) {
-        return res.status(200).json({ newProductWasAdded: true });
-      } else {
-        throw new Error("Something went wrond. Please try again");
-      }
+    if (newProductAfterInsert) {
+      return res.status(200).json({ newProductWasAdded: true });
+    } else {
+      throw new Error("Something went wrond. Please try again");
     }
   } catch (error) {
     console.log("ERR: ", error);
@@ -234,7 +239,7 @@ app.post("/removeProductFromDB", async (req, res, next) => {
     let nameExistsInDB = await client
       .db("ShoesStore")
       .collection("Products")
-      .findOne({ $or: [{ name: req.body.name }] });
+      .findOne({ name: req.body.name});
 
     if (!nameExistsInDB) {
       console.log("product: ", nameExistsInDB);
@@ -243,13 +248,11 @@ app.post("/removeProductFromDB", async (req, res, next) => {
       let deleteProduct = await client
         .db("ShoesStore")
         .collection("Products")
-        .deleteOne({ product });
+        .deleteOne({ name: req.body.name});
 
       if (deleteProduct) {
         return res.status(200).json({ productWasDeleted: true });
-      } else {
-        throw new Error("Something went wrong. Please try again");
-      }
+      } 
     }
   } catch (error) {
     console.log("ERR: ", error);
@@ -311,7 +314,6 @@ app.post("/addItemToCart", async (req, res, _next) => {
 
     //add the product to a new session
     const currentCart = req.cookies.cart || [];
-    ;
     // const productCount = 1;
     let productWasFoundInCookies = false;
     let i = -1;
@@ -338,11 +340,14 @@ app.post("/addItemToCart", async (req, res, _next) => {
       // currentCart.push([productFromDB, 1]);
       // products are saved for 30 minutes in cart, unless user logges out
       if (currentCart === []) {
-        res.cookie("cart", { product: productFromDB, count: 1 }, { maxAge: 1800000 });
-
+        res.cookie(
+          "cart",
+          { product: productFromDB, count: 1 },
+          { maxAge: 1800000 }
+        );
       } else {
-        currentCart.push({ product: productFromDB, count: 1 })
-        res.cookie("cart", currentCart , { maxAge: 1800000 });  
+        currentCart.push({ product: productFromDB, count: 1 });
+        res.cookie("cart", currentCart, { maxAge: 1800000 });
       }
       // console.log(res.cookie.cart.valueOf());
       res.status(200).json({ productFromDB });
@@ -481,7 +486,7 @@ app.post("/getItemsFromDB", async (req, res, _next) => {
   }
 });
 
-app.get("/itemsExistInCart", async (req, res) => {
+app.post("/itemsExistInCart", async (req, res) => {
   console.log("cookies", req.cookies?.cart);
   console.log("cookies", req.cookies?.session);
 
@@ -493,20 +498,42 @@ app.get("/itemsExistInCart", async (req, res) => {
   }
 });
 
-app.get("/getEventsFromDB", async (req, res) => {
+app.post("/getEventsFromDB", async (req, res) => {
+  let searchVal = req.body.searchVal;
+  console.log("search value from server:", searchVal);
+
   try {
-    let eventsFromDB = await client
-      .db("ShoesStore")
-      .collection("Events")
-      .find({})
-      .toArray();
+    //user was found in db - return it's id
 
-    console.log("products: ", productsFromDB);
-
-    if (eventsFromDB === null) {
-      res.status(200).json({ noResults: true });
+    if (searchVal === null || searchVal === "") {
+      await client
+        .db("ShoesStore")
+        .collection("Events")
+        .find({})
+        .toArray()
+        .then((eventsFromDB) => {
+          console.log("Events: ", eventsFromDB);
+          res.status(200).json({ eventsFromDB });
+        });
     } else {
-      res.status(200).json({ eventsFromDB });
+      await client
+        .db("ShoesStore")
+        .collection("Events")
+        .find({
+          $or: [
+            { login: { $regex: searchVal, $options: "i" } },
+            { logout: { $regex: searchVal, $options: "i" } },
+          ],
+        })
+        .toArray()
+        .then((eventsFromDB) => {
+          console.log("events: ", eventsFromDB);
+          if (eventsFromDB === null) {
+            res.status(200).json({ noResults: true });
+          } else {
+            res.status(200).json({ eventsFromDB });
+          }
+        });
     }
   } catch (error) {
     console.log("ERR: ", error);

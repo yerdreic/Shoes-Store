@@ -45,22 +45,23 @@ const renderItemsInCart = async () => {
         let totalPrice = 0;
         // items in cart looks as follows:
         // 0:
-        //   count: 2
-        //   product: {_id: '62e8d2cd3e823c948203ca4f', name: 'Air Jordan 3 Retro', price: 399.99, image: 'shoes1.jpg'}
+        // count: 2
+        // product: {_id: '62e8d2cd3e823c948203ca4f', name: 'Air Jordan 3 Retro', price: 399.99, image: 'shoes1.jpg'}
 
         // 1:
-        //   count: 1
-        //   product: {_id: '62e91a043e823c948203ca51', name: 'PG 6', price: 220, image: 'shoes2.jpg'}
+        // count: 1
+        // product: {_id: '62e91a043e823c948203ca51', name: 'PG 6', price: 220, image: 'shoes2.jpg'}
 
         itemsInCart.forEach((item) => {
           //item is [product, productCount]
           let imgSrc = item.product.image;
+
           //not sure if itemID is needed here
-          let itemID = item.product.id;
+          let itemID = item.product._id;
           let itemName = item.product.name;
-          let itemPrice = item.product.price * itemCount;
+          let itemPrice = item.product.price;
           let itemCount = item.count;
-          totalPrice += itemPrice;
+          totalPrice += Number(itemPrice * itemCount);
 
           console.log("imgSrc:", imgSrc);
           console.log("itemName:", itemName);
@@ -68,7 +69,47 @@ const renderItemsInCart = async () => {
           console.log("itemCount:", itemCount);
           console.log("totalPrice:", totalPrice);
 
+          let divItem = document.createElement("div");
+          let divClassStyle = document.createElement("div");
+          let divClassProduct = document.createElement("div");
+          let divClassPrice = document.createElement("div");
+          let itemImg = document.createElement("img");
+          let divClassCaption = document.createElement("div");
 
+          divClassStyle.classList.add("count-input");
+          divClassProduct.classList.add("product-item");
+          //chnage the src of the image to the name from the db
+          itemImg.src = "images/"+imgSrc;
+          divClassCaption.classList.add("caption");
+
+          let iShoppingCart = document.createElement("option");
+          let iShoppingBag = document.createElement("option");
+          let buttonTrash = document.createElement("button");
+          buttonTrash.classList.add("remove-from-cart");
+          iShoppingCart.classList.add("form-control");
+          iShoppingBag.classList.add("form-control");
+          divClassPrice.innerText = divClassPrice;
+       
+          buttonTrash.setAttribute(
+            "onclick",
+            'onClearItemEventHandler()'
+          );
+
+          let itemNameElement = document.createElement("product-title");
+          itemNameElement.id = itemName;
+          let classItemPrice = document.createElement("td");
+          classItemPrice.classList.add("text-center", "text-lg", "text-medium");
+          let delItemPrice = document.createElement("del");
+          delItemPrice.id = itemPrice;
+          itemNameElement.innerText = itemName;
+          let spanItemPrice = document.createElement("span");
+          spanItemPrice.classList.add("price");
+          delItemPrice.innerText = itemPrice;
+          divClassCaption.appendChild(itemNameElement);
+          let insertItemsUnder = document.getElementById("insertItemsUnder");
+          insertItemsUnder.appendChild(divClassCaption);
+
+          
           // (V :) == WE HAVE IT!)
 
           // no need for discount column
@@ -82,7 +123,7 @@ const renderItemsInCart = async () => {
           //EDEN - create item and insert it under a main elemnt for each item taken out of the db.
           //use the totalPrice variable outside of the loop - and use it under the total element
           // let itemNameElement =
-          //   document.getElementsByClassName("product-title");
+          // document.getElementsByClassName("product-title");
           // itemNameElement.innerText = itemName;
 
           // let itemPriceElement = document.getElementById("itemPrice");
@@ -92,35 +133,7 @@ const renderItemsInCart = async () => {
           // deleteItem.setAttribute("onclick", "onClearItemEventHandler();");
         });
 
-        //Eden - use the total
-
-        //     <td class="text-center">
-        //     <div class="count-input">
-        //         <select class="form-control">
-        //             <option>1</option>
-        //             <option>2</option>
-        //             <option>3</option>
-        //             <option>4</option>
-        //             <option>5</option>
-        //         </select>
-        //     </div>
-        // </td>
-        // <td class="text-center text-lg text-medium">$43.90</td>
-        // <td class="text-center text-lg text-medium">$18.00</td>
-        // <td class="text-center"><a class="remove-from-cart" href="#" data-toggle="tooltip" title=""
-        //         data-original-title="Remove item"><i class="fa fa-trash"></i></a></td>
-        // </tr>
-        // <tr>
-        // <td>
-        //     <div class="product-item">
-        //         <a class="product-thumb" href="#"><img
-        //                 src="https://via.placeholder.com/220x180/5F9EA0/000000" alt="Product"></a>
-        //         <div class="product-info">
-        //             <h4 class="product-title"><a href="#">Daily Fabric Cap</a></h4><span><em>Size:</em>
-        //                 XL</span><span><em>Color:</em> Black</span>
-        //         </div>
-        //     </div>
-        // </td>
+      
       } else {
         window.alert(
           "The cart is only available for logged in users.\n You might want to login then..."
@@ -136,6 +149,7 @@ const renderItemsInCart = async () => {
     letRedirect("/redirectHome");
   }
 };
+
 
 const onClearItemEventHandler = async (clearAllCart) => {
   let res;
