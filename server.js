@@ -190,9 +190,9 @@ app.post("/login", async (req, res, _next) => {
 
 app.post("/addNewProductToDB", async (req, res, next) => {
   let product = null;
-  let name = req.body.name
+  let name = req.body.name;
 
-  console.log("in addingNewProductToDB from server, name:". name);
+  console.log("in addingNewProductToDB from server, name:".name);
 
   try {
     let nameAlreadyExist = await client
@@ -239,7 +239,7 @@ app.post("/removeProductFromDB", async (req, res, next) => {
     let nameExistsInDB = await client
       .db("ShoesStore")
       .collection("Products")
-      .findOne({ name: req.body.name});
+      .findOne({ name: req.body.name });
 
     if (!nameExistsInDB) {
       console.log("product: ", nameExistsInDB);
@@ -248,11 +248,11 @@ app.post("/removeProductFromDB", async (req, res, next) => {
       let deleteProduct = await client
         .db("ShoesStore")
         .collection("Products")
-        .deleteOne({ name: req.body.name});
+        .deleteOne({ name: req.body.name });
 
       if (deleteProduct) {
         return res.status(200).json({ productWasDeleted: true });
-      } 
+      }
     }
   } catch (error) {
     console.log("ERR: ", error);
@@ -464,7 +464,7 @@ app.post("/getItemsFromDB", async (req, res, _next) => {
       await client
         .db("ShoesStore")
         .collection("Products")
-        .find({ name: { $regex: searchVal, $options: "i" } })
+        .find({ name: { $regex: searchVal } })
         .toArray()
         .then((productsFromDB) => {
           console.log("products: ", productsFromDB);
@@ -486,11 +486,11 @@ app.post("/getItemsFromDB", async (req, res, _next) => {
   }
 });
 
-app.post("/itemsExistInCart", async (req, res) => {
+app.get("/itemsExistInCart", async (req, res) => {
   console.log("cookies", req.cookies?.cart);
   console.log("cookies", req.cookies?.session);
 
-  if (req.cookies === {} || !req.cookies?.cart) {
+  if (req.cookies === {} || req.cookies?.cart[0] === null) {
     res.status(200).send({ itemsInCart: false });
   } else {
     let cartCookie = req.cookies?.cart;
@@ -544,13 +544,39 @@ app.post("/getEventsFromDB", async (req, res) => {
 
 app.post("/clearCart", async (req, res) => {
   console.log("cookies", req.cookies?.cart);
+  let itemID = req.body.itemID;
 
-  res.clearCookie("cart");
+  if (itemID == null) {
+    res.clearCookie("cart");
 
-  if (!req.cookies?.cart) {
-    res.status(200).send({ cookiesWereCleared: true });
+    if (!req.cookies?.cart) {
+      res.status(200).send({ cartWasCleared: true });
+    } else {
+      res.status(200).send({ cartWasCleared: false });
+    }
+
   } else {
-    res.status(200).send({ cookiesWereCleared: false });
+    const currentCart = req.cookies.cart || [];
+    // const productCount = 1;
+    let productWasFoundInCookies = false;
+    let i = -1;
+    console.log("current cart:", currentCart);
+
+    currentCart.forEach((product) => {
+      console.log("cookie:", req.cookies.cart.valueOf());
+      i += 1;
+      console.log("itemID:", product.product._id);
+      console.log("itemID FROM DB:", itemID.valueOf());
+
+      if (product.product._id.valueOf() == itemID.valueOf()) {
+        //product[1] is productCount
+        productWasFoundInCookies = true;
+        req.cookies.cart[i] = null;
+        res.cookie("cart", currentCart, { maxAge: 1800000 });
+        // console.log("COUNT VAL:", res.cookie.cart);
+        res.status(200).json({ productWasRemovedFromCart: true });
+      }
+    });
   }
 });
 
