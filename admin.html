@@ -38,6 +38,11 @@
           </table>
           <br><br>
         <h4>Users Events:</h4>
+        <br>
+        <div class="search-wrapper">
+            <lable type="button" for="search" onclick='cleanProductsView();getLoginLogoutEvents(document.getElementById("search").value);'>Search</lable>
+            <input type="search" id="search" data-search>
+        </div>
         <table id="usersTable">
         <tr>
           <th>Email</th>

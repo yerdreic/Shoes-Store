@@ -420,7 +420,12 @@ app.post("/getUsersFromDB", async (req, res, _next) => {
       await client
         .db("ShoesStore")
         .collection("Users")
-        .find({ email: { $regex: searchVal, $options: "i" } })
+        .find({
+          $or: [
+            { email: { $regex: searchVal, $options: "i" } },
+            { password: null },
+          ],
+        })
         .toArray()
         .then((usersFromDB) => {
           console.log("users: ", usersFromDB);
@@ -461,19 +466,24 @@ app.post("/getItemsFromDB", async (req, res, _next) => {
           res.status(200).json({ productsFromDB });
         });
     } else {
-      await client
+      let productsFromDB = await client
         .db("ShoesStore")
         .collection("Products")
-        .find({ name: {$regex: searchVal, $options: "i" }})
-        .toArray()
-        .then((productsFromDB) => {
-          console.log("products: ", productsFromDB);
-          if (productsFromDB === null) {
-            res.status(200).json({ noResults: true });
-          } else {
-            res.status(200).json({ productsFromDB });
-          }
-        });
+        .find({
+          $or: [
+            { name: { $regex: searchVal, $options: "i" } },
+            { price: null },
+            { image: null },
+          ],
+        })
+        .toArray();
+
+      if (productsFromDB) {
+        console.log("products: ", productsFromDB);
+        res.status(200).json({ productsFromDB });
+      } else {
+        res.status(200).json({ noResults: true });
+      }
 
       // productsFromDB = await productsFromDB.json();
 
@@ -554,7 +564,6 @@ app.post("/clearCart", async (req, res) => {
     } else {
       res.status(200).send({ cartWasCleared: false });
     }
-
   } else {
     const currentCart = req.cookies.cart || [];
     // const productCount = 1;

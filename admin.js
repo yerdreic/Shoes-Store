@@ -1,3 +1,8 @@
+const cleanProductsView = () => {
+  let insertItemsUnder = document.getElementById("usersTable");
+  insertItemsUnder.innerHTML = "";
+};
+
 const getUsersFromDB = async (searchVal) => {
   searchVal = searchVal === undefined ? null : searchVal;
   console.log("search val:", searchVal);
