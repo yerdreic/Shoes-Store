@@ -464,7 +464,7 @@ app.post("/getItemsFromDB", async (req, res, _next) => {
       await client
         .db("ShoesStore")
         .collection("Products")
-        .find({ name: { $regex: searchVal } })
+        .find({ name: {$regex: searchVal, $options: "i" }})
         .toArray()
         .then((productsFromDB) => {
           console.log("products: ", productsFromDB);
