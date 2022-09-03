@@ -39,6 +39,7 @@ const sendDataFromSearch = async (searchVal) => {
         let productName = product.name;
         let productPrice = product.price;
         let productImage = product.image;
+
         let productId = product._id;
         console.log(productName);
         console.log(productPrice);
@@ -53,7 +54,15 @@ const sendDataFromSearch = async (searchVal) => {
         divClassStyle.classList.add("col-xs-6", "col-md-4");
         divClassProduct.classList.add("product", "tumbnail", "thumbnail-3");
         //chnage the src of the image to the name from the db
-        itemImg.src = "images/"+productImage;
+        if (
+          productImage &&
+          typeof productImage === "string" &&
+          productImage.startsWith("data:image")
+        ) {
+          itemImg.src = productImage;
+        } else {
+          itemImg.src = "images/" + productImage;
+        }
         divClassCaption.classList.add("caption");
 
         let buttonAddToCart = document.createElement("button");
@@ -66,7 +75,7 @@ const sendDataFromSearch = async (searchVal) => {
         buttonAddToCart.id = productId;
         buttonAddToCart.setAttribute(
           "onclick",
-          'addedItemToCartEventHandler("' + productId + '")'
+          'addedItemToCartEventHandler("' +productId+ '")'
         );
         spanAddToCart.innerText = "Add To Cart";
         spanAddedToCart.innerText = "Added To Cart";
@@ -102,36 +111,6 @@ const sendDataFromSearch = async (searchVal) => {
         divItem.appendChild(divClassStyle);
         insertItemsUnder.appendChild(divItem);
 
-        //we'll use these value inside the html
-        //needs to addEventListener to each product - done below!
-        //   const buttons = document.querySelectorAll("button");
-        // const addToCartButotns = document.querySelectorAll(".add-to-cart");
-        //   const addedToCart = document.querySelectorAll(".added-to-cart");
-        //   const cart = document.querySelectorAll(".fa-shopping-cart");
-        //   const bag = document.querySelectorAll(".fa-shopping-bag");
-
-        //   buttons.forEach(button => {
-
-        //   button.addEventListener("click", () => {
-        //     addToCart.forEach(button => {
-
-        //     })
-        //     addToCart.classList.add("add-to-cart-animation");
-        //     addedToCart.classList.add("added-to-cart-animation");
-
-        //     cart.style.animation = "cart 2000ms ease-in-out forwards";
-        //     bag.style.animation = "bag 2000ms 700ms ease-in-out forwards";
-        //   });
-        // })
-
-        // document.querySelectorAll(".add-to-cart").foreach((addToCart) => {
-        //   addToCart.addEventListener("click", async () => {
-        //     //add the id of the name of the item
-        //     let itemName = document.getElementById("itemName");
-        //     //let itemPrice = document.getElementById("itemPrice");
-
-        //       });
-        //     });
       });
     }
   } catch (error) {

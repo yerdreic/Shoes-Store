@@ -145,23 +145,23 @@ const getProductsFromDB = async () => {
         let itemName = document.createElement("td");
         // itemName.id = productName;
         let itemPrice = document.createElement("td");
-        let itemImage = document.createElement("td");
         let removeItem = document.createElement("td");
         let removeButton = document.createElement("button");
+        let itemImage = document.createElement("td");
 
         itemName.innerText = productName;
         itemPrice.innerText = productPrice;
         itemImage.innerText = productImage;
         removeButton.setAttribute(
           "onclick",
-          'onClickRemoveProductEventHandler("' + productName + '")'
+          'onClickRemoveProductEventHandler("' +productName+ '")'
         );
 
         removeItem.appendChild(removeButton);
         tableRow.appendChild(itemName);
         tableRow.appendChild(itemPrice);
-        tableRow.appendChild(itemImage);
         tableRow.appendChild(removeItem);
+        tableRow.appendChild(itemImage);
 
         productsTable.appendChild(tableRow);
 
@@ -178,45 +178,22 @@ const getProductsFromDB = async () => {
   }
 };
 
-
 //need to create a form, from which we will take the data of the new product
 const onClickAddNewProductEventHandler = async () => {
-  
-  let reader = new FileReader();
-  let itemImage;
-	// Setup the callback event to run when the file is read
-	reader.onload = (event) => {
-    itemImage = event.target.result;
-    console.log(itemImage);
-    return itemImage;
-  } 
-
-	// Read the file
-	reader.readAsDataURL(file.files[0]);
-
-
-  // let formData = new FormData(); 
-  // formData.append("file", fileupload.files[0]);
-  // await fetch("/upload.php", {
-  //   method: "POST",
-  //   body: formData,
-  // });
-  // alert("The file has been uploaded successfully.");
-
   const itemName = document.getElementById("itemName").value;
   const itemPrice = document.getElementById("itemPrice").value;
   // const itemImage = document.getElementById("itemImage").value;
 
+  const data = new FormData();
+  data.append("file", fileupload.files[0]);
+  data.append("itemName", itemName);
+  data.append("itemPrice", itemPrice);
+
   try {
     let res = await fetch(`/addNewProductToDB`, {
-      body: JSON.stringify({
-        name: itemName,
-        price: itemPrice,
-        image: itemImage,
-      }),
+      body: data,
       cache: "no-cache",
       method: "POST",
-      headers: { "Content-Type": "application/json" },
     });
 
     if (!res) {
@@ -235,19 +212,18 @@ const onClickAddNewProductEventHandler = async () => {
       );
     } else if (res.newProductWasAdded === true) {
       window.alert(
-        "Your new product was added to DB! You can now see it in the catalog! "
+        "Your new product was added to DB! You can now see it in the catalog!\n Please refresh the page"
       );
-      // need to redirect to the page in which the products are shown under admin
       setTimeout(() => {
-        letRedirect("/admin.html");
+        letRedirect("/redirectAdmin");
       }, 3000);
     }
   } catch (error) {
     console.log("errr ", error);
-    window.alert("Something went wrong.. Please try again");
+    window.alert("Something went wrong.. Please refresh the page");
 
     setTimeout(() => {
-      letRedirect("/admin.html");
+      letRedirect("/redirectAdmin");
     }, 3000);
   }
 };

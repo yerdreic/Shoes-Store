@@ -28,21 +28,17 @@
             <input type="text" id="itemPrice">
             <!-- <label for="productname">Image:</label > -->
             <!-- <input type="text" id="itemImage"> -->
-            <!-- <input id="fileupload" type="file" name="fileupload" /> -->
-            <form id="upload">
-                <label for="file">Image to upload</label>
-                <input type="file" id="file" accept="image/*" onchange="uploadImage()">
-            
-                <button>Upload</button>
-            </form>
-                        <input id="upload-button" type="button" value="Add Product" onclick='onClickAddNewProductEventHandler()'>
+            <label for="file">Image to upload</label>
+            <input id="fileupload" type="file" name="fileupload" />
+
+            <input id="upload-button" type="button" value="Add Product" onclick='onClickAddNewProductEventHandler()'>
         </form>
         <table id="productsTable">
             <tr>
                 <th>Name</th>
                 <th>Price</th>
-                <th>Image</th>
                 <th>Remove</th>
+                <th>Image</th>
             </tr>
         </table>
         <br><br>

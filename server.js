@@ -4,6 +4,7 @@ const BSON = require("bson");
 const flash = require("express-flash");
 const path = require("path");
 const hostname = "127.0.0.1";
+const fileUpload = require("express-fileupload");
 const port = 3000;
 const mongoose = require("mongoose");
 const { MongoClient } = require("mongodb");
@@ -187,18 +188,25 @@ app.post("/login", async (req, res, _next) => {
     return res.redirect("/login.html");
   }
 });
-
+app.use(
+  fileUpload({
+    limits: { fileSize: 50 * 1024 * 1024 },
+  })
+);
 app.post("/addNewProductToDB", async (req, res, next) => {
   let product = null;
-  let name = req.body.name;
+  // let name = req.body.name;
+  console.log("in adingNewProductToDB from server, name:".name);
 
-  console.log("in addingNewProductToDB from server, name:".name);
+  const imgAsBase64 = req.files ? req.files.file.data.toString("base64") : "";
+  const addtoBase64 = "data:image/jpeg;charset=utf-8;base64,"
+  const img = addtoBase64 + imgAsBase64;
 
   try {
     let nameAlreadyExist = await client
       .db("ShoesStore")
       .collection("Products")
-      .findOne({ name: req.body.name });
+      .findOne({ name: req.body.itemName });
 
     if (nameAlreadyExist) {
       console.log("product: ", nameAlreadyExist);
@@ -215,15 +223,13 @@ app.post("/addNewProductToDB", async (req, res, next) => {
       .db("ShoesStore")
       .collection("Products")
       .insertOne(
-        { name: req.body.name },
-        { price: req.body.price },
-        { image: req.body.image }
+        { name: req.body.itemName, price: req.body.itemPrice, image: img }
       );
 
     if (newProductAfterInsert) {
       return res.status(200).json({ newProductWasAdded: true });
     } else {
-      throw new Error("Something went wrond. Please try again");
+      throw new Error("Something went wrong. Please try again");
     }
   } catch (error) {
     console.log("ERR: ", error);
@@ -323,7 +329,7 @@ app.post("/addItemToCart", async (req, res, _next) => {
       if (req.cookies?.cart[i] != null || []) {
         console.log("cookie:", req.cookies.cart.valueOf());
         console.log("productID:", product.product._id);
-        console.log("productID FROM DB:", productFromDB._id.valueOf());    
+        console.log("productID FROM DB:", productFromDB._id.valueOf());
 
         if (product.product._id.valueOf() == productFromDB._id.valueOf()) {
           //product[1] is productCount
@@ -585,7 +591,6 @@ app.post("/clearCart", async (req, res) => {
     res.cookie("cart", newCart, { maxAge: 1800000 });
     res.status(200).json({ productWasRemovedFromCart: true });
 
-
     // currentCart.forEach((product) => {
     //   console.log("cookie:", req.cookies.cart.valueOf());
     //   i += 1;
@@ -614,6 +619,10 @@ app.post("/redirectHome", (req, res) => {
   res.redirect("index.html");
 });
 
+app.post("/redirectAdmin", (req, res) => {
+  res.redirect("admin.html");
+});
+
 app.post("/successClearCart", (req, res) => {
   res.redirect("cart.html");
 });
@@ -625,7 +634,6 @@ app.post("/successLogin", (req, res) => {
 app.post("/notSuccessLogin", (req, res) => {
   res.redirect("login.html");
 });
-
 
 app.get("/register", (req, res) => {
   res.render("register.html");
