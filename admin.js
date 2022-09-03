@@ -104,7 +104,6 @@ const getLoginLogoutEvents = async (searchVal) => {
   }
 };
 
-
 const getProductsFromDB = async () => {
   let searchVal = null;
   try {
@@ -153,14 +152,17 @@ const getProductsFromDB = async () => {
         itemName.innerText = productName;
         itemPrice.innerText = productPrice;
         itemImage.innerText = productImage;
-        removeButton.setAttribute("onclick", 'onClickRemoveProductEventHandler("' + productName + '")');
-        
-        removeItem.appendChild(removeButton)
+        removeButton.setAttribute(
+          "onclick",
+          'onClickRemoveProductEventHandler("' + productName + '")'
+        );
+
+        removeItem.appendChild(removeButton);
         tableRow.appendChild(itemName);
         tableRow.appendChild(itemPrice);
         tableRow.appendChild(itemImage);
         tableRow.appendChild(removeItem);
-        
+
         productsTable.appendChild(tableRow);
 
         // EDEN - needs to add the elements to the page as html elements
@@ -177,10 +179,19 @@ const getProductsFromDB = async () => {
 };
 
 //need to create a form, from which we will take the data of the new product
-const onClickAddNewProductEventHandler = async () => {
+const onClickAddNewProductEventHandler = async (itemImage) => {
+  let formData = new FormData();
+  
+  formData.append("file", fileupload.files[0]);
+  await fetch("/upload.php", {
+    method: "POST",
+    body: formData,
+  });
+  alert("The file has been uploaded successfully.");
+
   const itemName = document.getElementById("itemName").value;
   const itemPrice = document.getElementById("itemPrice").value;
-  const itemImage = document.getElementById("itemImage").value;
+  // const itemImage = document.getElementById("itemImage").value;
 
   try {
     let res = await fetch(`/addNewProductToDB`, {
