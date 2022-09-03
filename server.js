@@ -108,7 +108,7 @@ app.post("/register", async (req, res, next) => {
       user = {
         email: req.body.email,
         password: req.body.password,
-        cart: new Array(null),
+        // cart: new Array(null),
       };
     }
 
@@ -282,18 +282,18 @@ app.post("/addItemToCart", async (req, res, _next) => {
       throw new Error("No result about this product");
     }
 
-    let today = new Date();
-    let addeTime =
-      today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+    // let today = new Date();
+    // let addeTime =
+    //   today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
 
-    let updatedUser = await client
-      .db("ShoesStore")
-      .collection("Users")
-      .findOneAndUpdate(
-        //at the moment, it overrides the last element in cart. Needs to be appended
-        { email: user.email },
-        { $set: { cart: { $push: { product: productFromDB } } } }
-      );
+    // let updatedUser = await client
+    //   .db("ShoesStore")
+    //   .collection("Users")
+    //   .findOneAndUpdate(
+    //     //at the moment, it overrides the last element in cart. Needs to be appended
+    //     { email: user.email },
+    //     { $set: { cart: { $push: { product: productFromDB } } } }
+    //   );
 
     // .db("ShoesStore")
     // .collection("Users")
@@ -302,37 +302,37 @@ app.post("/addItemToCart", async (req, res, _next) => {
     //   {$set: { cart : {$push: [{ productFromDB}, {addeTime } ] } } }
     // );
 
-    if (!updatedUser) {
-      throw new Error("No result about this user");
-    }
-    console.log("updatedUser: ", updatedUser);
+    // if (!updatedUser) {
+    //   throw new Error("No result about this user");
+    // }
+    // console.log("updatedUser: ", updatedUser);
 
     //productFromDB = await productFromDB.json();
 
-    console.log("product: ", productFromDB);
-    console.log("updatedUser: ", updatedUser);
+    // console.log("product: ", productFromDB);
+    // console.log("updatedUser: ", updatedUser);
 
     //add the product to a new session
     const currentCart = req.cookies.cart || [];
-    // const productCount = 1;
     let productWasFoundInCookies = false;
     let i = -1;
     console.log("current cart:", currentCart);
 
     currentCart.forEach((product) => {
-      console.log("cookie:", req.cookies.cart.valueOf());
       i += 1;
-      // let productId = new BSON.ObjectId(product[0]._id);
-      console.log("productID:", product.product._id);
-      console.log("productID FROM DB:", productFromDB._id.valueOf());
+      if (req.cookies?.cart[i] != null || []) {
+        console.log("cookie:", req.cookies.cart.valueOf());
+        console.log("productID:", product.product._id);
+        console.log("productID FROM DB:", productFromDB._id.valueOf());    
 
-      if (product.product._id.valueOf() == productFromDB._id.valueOf()) {
-        //product[1] is productCount
-        productWasFoundInCookies = true;
-        req.cookies.cart[i].count += 1;
-        res.cookie("cart", currentCart, { maxAge: 1800000 });
-        // console.log("COUNT VAL:", res.cookie.cart);
-        res.status(200).json({ productFromDB });
+        if (product.product._id.valueOf() == productFromDB._id.valueOf()) {
+          //product[1] is productCount
+          productWasFoundInCookies = true;
+          req.cookies.cart[i].count += 1;
+          res.cookie("cart", currentCart, { maxAge: 1800000 });
+          // console.log("COUNT VAL:", res.cookie.cart);
+          res.status(200).json({ productFromDB });
+        }
       }
     });
 
@@ -380,18 +380,26 @@ app.post("/removeItemFromCart", async (req, res, _next) => {
 
     //add the product to a new session
     const currentCart = req.cookies.cart || [];
-    currentCart.forEach((product) => {
-      console.log("productID:", product[0]._id);
 
-      if (product[0]._id === productFromDB._id) {
-        //product[1] is productCount
-        // req.cookies.cart.product.remove();
-        console.log("removed product from cart\n");
-        res.status(200).json({ productFromDB });
-      } else {
-        throw new Error("Something went wrong.. please try again");
-      }
-    });
+    const newCart = currentCart.filter(
+      (elm) => elm.product_id.valueOf() !== productFromDB._id()
+    );
+
+    res.cookie("cart", newCart, { maxAge: 1800000 });
+    res.status(200).json({ productWasRemovedFromCart: true });
+
+    // currentCart.forEach((product) => {
+    //   console.log("productID:", product[0]._id);
+
+    //   if (product[0]._id === productFromDB._id) {
+    //     //product[1] is productCount
+    //     // req.cookies.cart.product.remove();
+    //     console.log("removed product from cart\n");
+    //     res.status(200).json({ productFromDB });
+    //   } else {
+    //     throw new Error("Something went wrong.. please try again");
+    //   }
+    // });
   } catch (error) {
     console.log("ERR: ", error);
     // email not found / error
@@ -500,7 +508,7 @@ app.get("/itemsExistInCart", async (req, res) => {
   console.log("cookies", req.cookies?.cart);
   console.log("cookies", req.cookies?.session);
 
-  if (req.cookies === {} || req.cookies?.cart[0] === null) {
+  if (req.cookies === {} || req.cookies?.cart.length === 0) {
     res.status(200).send({ itemsInCart: false });
   } else {
     let cartCookie = req.cookies?.cart;
@@ -571,21 +579,28 @@ app.post("/clearCart", async (req, res) => {
     let i = -1;
     console.log("current cart:", currentCart);
 
-    currentCart.forEach((product) => {
-      console.log("cookie:", req.cookies.cart.valueOf());
-      i += 1;
-      console.log("itemID:", product.product._id);
-      console.log("itemID FROM DB:", itemID.valueOf());
+    const newCart = currentCart.filter(
+      (elm) => elm.product._id.valueOf() !== itemID.valueOf()
+    );
+    res.cookie("cart", newCart, { maxAge: 1800000 });
+    res.status(200).json({ productWasRemovedFromCart: true });
 
-      if (product.product._id.valueOf() == itemID.valueOf()) {
-        //product[1] is productCount
-        productWasFoundInCookies = true;
-        req.cookies.cart[i] = null;
-        res.cookie("cart", currentCart, { maxAge: 1800000 });
-        // console.log("COUNT VAL:", res.cookie.cart);
-        res.status(200).json({ productWasRemovedFromCart: true });
-      }
-    });
+
+    // currentCart.forEach((product) => {
+    //   console.log("cookie:", req.cookies.cart.valueOf());
+    //   i += 1;
+    //   console.log("itemID:", product.product._id);
+    //   console.log("itemID FROM DB:", itemID.valueOf());
+
+    //   if (product.product._id.valueOf() == itemID.valueOf()) {
+    //     //product[1] is productCount
+    //     productWasFoundInCookies = true;
+    //     req.cookies.cart[i]
+    //     res.cookie("cart", currentCart, { maxAge: 1800000 });
+    //     // console.log("COUNT VAL:", res.cookie.cart);
+    //     res.status(200).json({ productWasRemovedFromCart: true });
+    //   }
+    // });
   }
 });
 

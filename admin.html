@@ -1,54 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+
+<head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script type="text/javascript" src="app.js"></script>
     <script type="text/javascript" src="admin.js"></script>
     <script type="text/javascript" async>
-      window.onload = async () => {
-        await getLoginLogoutEvents();
-        await getProductsFromDB();
-      };
+        window.onload = async () => {
+            await getLoginLogoutEvents();
+            await getProductsFromDB();
+        };
     </script>
 
     <title>Document</title>
-  </head>
-  <body>
+</head>
+
+<body>
     <div class="wrapper">
-      <div class="one"><a href=index.html> back to home page</a></div>
-      <form id="addProduct" method="get">
-      <h4>Add Product:</h4>
-        <label for="productname">Product name:</label>
-        <input type="text" id="itemName">
-        <label for="productname">Product price:</label>
-        <input type="text" id="itemPrice">
-        <label for="productname">Image:</label>
-        <input type="text" id="itemImage">
-        <input type="button" value="Add Product" onclick="onClickAddNewProductEventHandler()">
+        <div class="one"><a href=index.html> back to home page</a></div>
+        <form id="addProduct" method="get">
+            <h4>Add Product:</h4>
+            <label for="productname">Product name:</label>
+            <input type="text" id="itemName">
+            <label for="productname">Product price:</label>
+            <input type="text" id="itemPrice">
+            <label for="productname">Image:</label>
+            <!-- <input type="text" id="itemImage"> -->
+            <input id="fileupload" type="file" name="fileupload" />
+            <input id="upload-button" type="button" value="Add Product" onclick='onClickAddNewProductEventHandler()'>
         </form>
         <table id="productsTable">
             <tr>
-              <th>Name</th>
-              <th>Price</th>
-              <th>Image</th>
-              <th>Remove</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Image</th>
+                <th>Remove</th>
             </tr>
-          </table>
-          <br><br>
+        </table>
+        <br><br>
         <h4>Users Events:</h4>
         <br>
         <div class="search-wrapper">
-            <lable type="button" for="search" onclick='cleanProductsView();getLoginLogoutEvents(document.getElementById("search").value);'>Search</lable>
+            <lable type="button" for="search"
+                onclick='cleanProductsView();getLoginLogoutEvents(document.getElementById("search").value);'>Search
+            </lable>
             <input type="search" id="search" data-search>
         </div>
         <table id="usersTable">
-        <tr>
-          <th>Email</th>
-          <th>Events</th>
-        </tr>
-      </table>
+            <tr>
+                <th>Email</th>
+                <th>Events</th>
+            </tr>
+        </table>
     </div>
-  </body>
+</body>
+
 </html>
