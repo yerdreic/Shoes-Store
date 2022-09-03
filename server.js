@@ -508,7 +508,7 @@ app.get("/itemsExistInCart", async (req, res) => {
   console.log("cookies", req.cookies?.cart);
   console.log("cookies", req.cookies?.session);
 
-  if (req.cookies === {} || req.cookies?.cart.length === 0) {
+  if (req.cookies === {} || !req.cookies?.cart) {
     res.status(200).send({ itemsInCart: false });
   } else {
     let cartCookie = req.cookies?.cart;
@@ -626,9 +626,6 @@ app.post("/notSuccessLogin", (req, res) => {
   res.redirect("login.html");
 });
 
-app.get("/login", (req, res) => {
-  res.render("login.html");
-});
 
 app.get("/register", (req, res) => {
   res.render("register.html");
@@ -653,9 +650,9 @@ app.post("/backToCart", (req, res) => {
 });
 
 //check for user authentication before trying to view cart
-app.get("/cart.html", (req, res) => {
-  res.sendFile(__dirname + "/index.html");
-});
+// app.get("/cart.html", (req, res) => {
+//   res.sendFile(__dirname + "/index.html");
+// });
 
 // app.post("/getProducts", (req, res) => {
 //   let payload = req.body.payload.trim();
