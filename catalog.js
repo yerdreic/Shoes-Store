@@ -81,7 +81,7 @@ const sendDataFromSearch = async (searchVal) => {
 
         divClassCaption.appendChild(buttonAddToCart);
 
-        let itemNameElement = document.createElement("h6");
+        let itemNameElement = document.createElement("h3");
         itemNameElement.id = "itemName";
         let spanItemPrice = document.createElement("span");
         let delItemPrice = document.createElement("del");

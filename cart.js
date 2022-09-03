@@ -168,7 +168,7 @@ const renderItemsInCart = async () => {
           aClass.innerText = itemName;
           buttonClassTrash.setAttribute("onclick", 'onClearItemEventHandler("' + itemID + '")');
           itemImg.setAttribute("src", imgSrc);
-          option1.innerText = "1";
+          option1.innerText = itemCount;
           option2.innerText = "2";
           option3.innerText = "3";
           

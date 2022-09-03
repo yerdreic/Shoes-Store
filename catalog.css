@@ -7,14 +7,28 @@
 
 }
 
+
 .product .caption {
   margin-top: 15px;
 }
 
-.product .caption h6 {
+.product .caption h3 {
   color: #455a64;
   size: 30px;
 }
+
+h3 {
+  padding: 8px;
+  background-color: #e1e7ec;
+  display:inline-block;
+  padding: 5px;
+  margin: 10px;
+}
+
+h1.text-center.text-muted{
+  margin: 15px;
+}
+
 
 .product .caption .price + .price {
   margin-left: 15px;
@@ -24,10 +38,13 @@
   box-shadow: 0 5px 25px 0 transparent;
   transition: 0.3s linear;
   padding-top: 0;
+  vertical-align: middle;
+
 }
 
 .product.tumbnail img:hover {
   box-shadow: 0 5px 25px 0 rgba(0, 0, 0, 0.2);
+
 }
 
 .single-product span {
@@ -133,6 +150,7 @@
   }
 }
 
+
 .price {
   display: inline-block;
   font-size: 15px;
@@ -140,6 +158,7 @@
   font-weight: 700;
   letter-spacing: 0.02em;
   color: #2b2f3e;
+  
 }
 
 .price.sale {
@@ -308,3 +327,4 @@ float: right;
 .search-wrapper {
 float: right;
 }
+
