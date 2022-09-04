@@ -109,8 +109,17 @@ const renderItemsInCart = async () => {
           console.log("totalPrice:", totalPrice);
           
           let itemImg = document.createElement("img");
-          itemImg.src = "images/"+imgSrc;
-         
+
+          if (
+            imgSrc &&
+            typeof imgSrc === "string" &&
+            imgSrc.startsWith("data:image")
+          ) {
+            itemImg.src = imgSrc;
+          } else {
+            itemImg.src = "images/" + imgSrc;
+          }
+           
           let tr = document.createElement("tr");
           let td1 = document.createElement("td");
           let td2 = document.createElement("td");

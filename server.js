@@ -50,16 +50,6 @@ async function main() {
 
 main().catch(console.error);
 
-// const userExists = await client
-//   .db("ShoesStore")
-//   .collection("Users")
-//   .findOne({ email: "example@example.com" });
-// if (!userExists) {
-//   client.db("ShoesStore").collection("Users").insertOne({
-//     email: req.body.email,
-//     password: req.body.password,
-//   });
-// }
 const cartCellSchema = new mongoose.Schema({
   product: Object,
   addedTime: String,
@@ -287,46 +277,24 @@ app.post("/addItemToCart", async (req, res, _next) => {
     if (!productFromDB) {
       throw new Error("No result about this product");
     }
+    
+    console.log("new product dataURL image:", productFromDB.image);
+    //We don't render pictures of products in cart. 
+    //This image of the product that is added to the cookie, is only used in cart.
 
-    // let today = new Date();
-    // let addeTime =
-    //   today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-
-    // let updatedUser = await client
-    //   .db("ShoesStore")
-    //   .collection("Users")
-    //   .findOneAndUpdate(
-    //     //at the moment, it overrides the last element in cart. Needs to be appended
-    //     { email: user.email },
-    //     { $set: { cart: { $push: { product: productFromDB } } } }
-    //   );
-
-    // .db("ShoesStore")
-    // .collection("Users")
-    // .updateOne(
-    //   { email: user.email },
-    //   {$set: { cart : {$push: [{ productFromDB}, {addeTime } ] } } }
-    // );
-
-    // if (!updatedUser) {
-    //   throw new Error("No result about this user");
-    // }
-    // console.log("updatedUser: ", updatedUser);
-
-    //productFromDB = await productFromDB.json();
-
-    // console.log("product: ", productFromDB);
-    // console.log("updatedUser: ", updatedUser);
+    if (productFromDB.image.length > 4096) {
+      productFromDB.image = null;
+    }
 
     //add the product to a new session
-    const currentCart = req.cookies.cart || [];
+    const currentCart = req.cookies?.cart || [];
     let productWasFoundInCookies = false;
     let i = -1;
     console.log("current cart:", currentCart);
 
     currentCart.forEach((product) => {
       i += 1;
-      if (req.cookies?.cart[i] != null || []) {
+      if (currentCart[i] != null || []) {
         console.log("cookie:", req.cookies.cart.valueOf());
         console.log("productID:", product.product._id);
         console.log("productID FROM DB:", productFromDB._id.valueOf());
