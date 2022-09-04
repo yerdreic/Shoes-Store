@@ -2,12 +2,11 @@ const onClearItemEventHandler = async (itemID) => {
   itemID = itemID === undefined ? null : itemID;
 
   try {
-      let res = await fetch("/clearCart", {
-        body: JSON.stringify({ itemID }),
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      });
-    
+    let res = await fetch("/clearCart", {
+      body: JSON.stringify({ itemID }),
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    });
 
     res = await res.json();
 
@@ -18,18 +17,17 @@ const onClearItemEventHandler = async (itemID) => {
       setTimeout(() => {
         letRedirect("/successClearCart");
       }, 3000);
-
-    } else if (res.productWasRemovedFromCart){
+    } else if (res.productWasRemovedFromCart) {
       window.alert("Item was successfully deleted");
 
       setTimeout(() => {
         letRedirect("/successClearCart");
       }, 3000);
-
     } else {
-      throw new Error("Something went wrong, we are sorry");
+      setTimeout(() => {
+        letRedirect("/successClearCart");
+      }, 3000);
     }
-    
   } catch (error) {
     console.log("err ", error);
     window.alert(error);
@@ -39,8 +37,7 @@ const onClearItemEventHandler = async (itemID) => {
     }, 3000);
   }
 };
-      
-     
+
 const renderItemsInCart = async () => {
   //for now - if he is not logged in - he is moved directly to login page
   try {
@@ -75,12 +72,8 @@ const renderItemsInCart = async () => {
         catalog.innerHTML = '<a href="./catalog.html">go to catalog</a>';
         productsTable.appendChild(noItems);
         productsTable.appendChild(catalog);
-        //there are items in cart
-      }
-
-      else if (res.itemsInCart === true) {
+      } else if (res.itemsInCart === true) {
         let itemsInCart = res.cartCookie;
-        //let productsFromDB = itemsInCart.productFromDB;
 
         console.log("items in cart:", itemsInCart);
         //we'll create an element from each product
@@ -90,24 +83,21 @@ const renderItemsInCart = async () => {
         let cartFooter = document.getElementById("cartFooter");
 
         itemsInCart.forEach((item) => {
-
-          //item is [product, productCount]
           let imgSrc = item.product.image;
 
-          //not sure if itemID is needed here
           let itemID = item.product._id;
           let itemName = item.product.name;
           let itemPrice = item.product.price;
           let itemCount = item.count;
-          totalPrice += Number(itemPrice*itemCount);
+          totalPrice += Number(itemPrice * itemCount);
 
-          console.log("itemID:",itemID);
-          console.log("imgSrc:",imgSrc);
+          console.log("itemID:", itemID);
+          console.log("imgSrc:", imgSrc);
           console.log("itemName:", itemName);
           console.log("itemPrice:", itemPrice);
           console.log("itemCount:", itemCount);
           console.log("totalPrice:", totalPrice);
-          
+
           let itemImg = document.createElement("img");
 
           if (
@@ -119,7 +109,7 @@ const renderItemsInCart = async () => {
           } else {
             itemImg.src = "images/" + imgSrc;
           }
-           
+
           let tr = document.createElement("tr");
           let td1 = document.createElement("td");
           let td2 = document.createElement("td");
@@ -136,9 +126,7 @@ const renderItemsInCart = async () => {
           let option3 = document.createElement("option");
           let aClassRemove = document.createElement("a");
           let buttonClassTrash = document.createElement("button");
-          //let buttonTrash = document.createElement("button");
-          // let subtotal = document.createElement("span");
-  
+
           insertItemsUnder.appendChild(tr);
           tr.appendChild(td1);
           tr.appendChild(td2);
@@ -157,8 +145,6 @@ const renderItemsInCart = async () => {
           select.appendChild(option3);
           td4.appendChild(aClassRemove);
           aClassRemove.appendChild(buttonClassTrash);
-          
-
 
           divProductItem.classList.add("product-item");
           aClass.classList.add("product-thumb");
@@ -170,64 +156,23 @@ const renderItemsInCart = async () => {
           td4.classList.add("text-center");
           aClassRemove.classList.add("remove-from-cart");
           buttonClassTrash.classList.add("fa", "fa-trash");
-          //buttonTrash.classList.add("remove-from-cart");
-             
 
-          td3.innerText = itemPrice+"$";
+          td3.innerText = itemPrice + "$";
           aClass.innerText = itemName;
-          buttonClassTrash.setAttribute("onclick", 'onClearItemEventHandler("' + itemID + '")');
+          buttonClassTrash.setAttribute(
+            "onclick",
+            'onClearItemEventHandler("' + itemID + '")'
+          );
           itemImg.setAttribute("src", imgSrc);
           option1.innerText = itemCount;
           option2.innerText = "2";
           option3.innerText = "3";
-          
-         
-          
-
-          // <div id="insertItemsUnder"></div>
-          //  
-          //           <tr>
-          //               <td>1
-          //                   <div class="product-item">
-          //                       <a class="product-thumb" href="#"><img
-          //                               src="https://via.placeholder.com/220x180/FF0000/000000" alt="Product"></a>
-          //                       <div class="product-info">
-          //                           <h4 class="product-title"><a href="#">name</a></h4>
-          //                       </div>
-          //                   </div>
-          //               </td>
-          //               <td class="text-center">2
-          //                   <div class="count-input">
-          //                       <select class="form-control">
-          //                           <option>1</option>
-          //                           <option>2</option>
-          //                           <option>3</option>
-          //                       </select>
-          //                   </div>
-          //               </td>
-          //               <td class="text-center text-lg text-medium">$18.00</td>3
-          //               <td class="text-center"><a class="remove-from-cart" href="#" data-toggle="tooltip" title=""
-          //                       data-original-title="Remove item"><i class="fa fa-trash"></i></a></td>4
-          //           </tr>
-          
-          
-          //use the totalPrice variable outside of the loop - and use it under the total element
-          // let itemNameElement =
-          // document.getElementsByClassName("product-title");
-          // itemNameElement.innerText = itemName;
-
-          // let itemPriceElement = document.getElementById("itemPrice");
-          // itemPriceElement.innerText = itemPrice;
-
-          // let deleteItem = document.getElementsByClassName("remove-from-cart");
-          // deleteItem.setAttribute("onclick", "onClearItemEventHandler()");
         });
+
         let subtotal = document.createElement("span");
-        subtotal.classList.add("text-medium"); 
+        subtotal.classList.add("text-medium");
         subtotal.innerText = "Subtotal:" + totalPrice;
         cartFooter.appendChild(subtotal);
-
-      
       } else {
         window.alert(
           "The cart is only available for logged in users.\n You might want to login then..."
@@ -243,20 +188,3 @@ const renderItemsInCart = async () => {
     letRedirect("/redirectHome");
   }
 };
-
-
-
-
-//connect the logo of deletion to the
-// const deleteItemFromCartButton = document.getElementById("remove-from-cart");
-// deleteItemFromCartButton.addEventListener("click", async () => {
-//     await onClearItemEventHandler();
-// })
-
-
-
-//connect the logo of deletion to the
-// const deleteItemFromCartButton = document.getElementById("remove-from-cart");
-// deleteItemFromCartButton.addEventListener("click", async () => {
-//     await onClearItemEventHandler();
-// })

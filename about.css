@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap');
 
-*{
+* {
     box-sizing: border-box;
     padding: 0;
     margin: 0;
@@ -77,12 +77,12 @@ section {
     text-decoration: none;
 }
 
-.links li:hover{
+.links li:hover {
     border-color: #06d6a0;
 }
 
 .links li:hover a {
-    color :#06d6a0;
+    color: #06d6a0;
 }
 
 .vertical-line {
@@ -114,7 +114,7 @@ section {
 
 /*****************/
 
-@media(max-width: 992px){
+@media(max-width: 992px) {
     section {
         grid-template-columns: 1fr;
         width: 100%;
@@ -166,27 +166,27 @@ section {
 
 /* Style the links inside the navigation bar */
 .topnav a {
-  float: left;
-  color: #f2f2f2;
-  text-align: center;
-  padding: 14px 16px;
-  text-decoration: none;
-  font-size: 17px;
+    float: left;
+    color: #f2f2f2;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 17px;
 }
 
 /* Change the color of links on hover */
 .topnav a:hover {
-  background-color: #ddd;
-  color: black;
+    background-color: #ddd;
+    color: black;
 }
 
 /* Add a color to the active/current link */
 .topnav a.active {
-  background-color: gray;
-  color: white;
+    background-color: gray;
+    color: white;
 }
 
 /* Right-aligned section inside the top navigation */
 .topnav-right {
-  float: right;
+    float: right;
 }

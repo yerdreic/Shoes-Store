@@ -35,7 +35,6 @@ const sendDataFromSearch = async (searchVal) => {
         console.log(product.name);
         console.log(product.price);
 
-        //imgSrc = product.image;
         let productName = product.name;
         let productPrice = product.price;
         let productImage = product.image;
@@ -75,7 +74,7 @@ const sendDataFromSearch = async (searchVal) => {
         buttonAddToCart.id = productId;
         buttonAddToCart.setAttribute(
           "onclick",
-          'addedItemToCartEventHandler("' +productId+ '")'
+          'addedItemToCartEventHandler("' + productId + '")'
         );
         spanAddToCart.innerText = "Add To Cart";
         spanAddedToCart.innerText = "Added To Cart";
@@ -98,19 +97,17 @@ const sendDataFromSearch = async (searchVal) => {
 
         itemNameElement.innerText = productName;
         spanItemPrice.classList.add("price");
-        delItemPrice.innerText = productPrice+"$";
+        delItemPrice.innerText = productPrice + "$";
 
         divClassCaption.appendChild(itemNameElement);
         divClassCaption.appendChild(delItemPrice);
 
-        // spanItemPrice.appendChild(delItemPrice);
         divClassCaption.appendChild(spanItemPrice);
         divClassProduct.appendChild(itemImg);
         divClassProduct.appendChild(divClassCaption);
         divClassStyle.appendChild(divClassProduct);
         divItem.appendChild(divClassStyle);
         insertItemsUnder.appendChild(divItem);
-
       });
     }
   } catch (error) {
@@ -163,7 +160,9 @@ const addedItemToCartEventHandler = async (productId) => {
 mybutton = document.getElementById("myBtn");
 
 // When the user scrolls down 20px from the top of the document, show the button
-window.onscroll = function() {scrollFunction()};
+window.onscroll = function () {
+  scrollFunction();
+};
 
 function scrollFunction() {
   if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
@@ -178,20 +177,3 @@ function topFunction() {
   document.body.scrollTop = 0; // For Safari
   document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
 }
-
-//needs to be in this structure
-
-//   <div class="col-xs-6 col-md-4">
-//   <div class="product tumbnail thumbnail-3"><img src="images/shoes1.jpg"></a>
-//     <div class="caption">
-//       <button>
-//         <span class="add-to-cart">Add To Cart</span>
-//         <i class="fas fa-shopping-cart"></i>
-//         <i class="fas fa-shopping-bag"></i>
-//         <span class="added-to-cart">Added To Cart</span>
-//       </button>
-//       <h6><a href="#">Air Jordan 3 Retro</a></h6><span class="price">
-//         <del>$459.99</del></span><span class="price sale">$399.99</span>
-//     </div>
-//   </div>
-// </div>

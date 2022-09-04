@@ -1,75 +1,38 @@
 //Load HTTP module
+//WE LEFT ALL THE CONSOLE.LOGS FOR YOU TO BE ABLE TO SEE HOW THINGS WORK. IF IT WAS NOT NECESSARY,
+//- SORRY FOR THAT :/
 const express = require("express");
 const BSON = require("bson");
-const flash = require("express-flash");
 const path = require("path");
 const hostname = "127.0.0.1";
 const fileUpload = require("express-fileupload");
 const port = 3000;
-const mongoose = require("mongoose");
 const { MongoClient } = require("mongodb");
-//const products = require('./products');
-//const config = require("config");
-//const { collection } = require("./modules/users");
-//const { any } = require("webidl-conversions");
-//const dbConfig = config.get("Customer.dbConfig.dbName");
 const app = express();
 const cookieParser = require("cookie-parser");
-const cookieSession = require("cookie-session");
-const { query } = require("express");
 
 app.set("trust proxy", 1); // trust first proxy
 
 app.use(cookieParser());
 app.use(express.json());
 
-//app.use(express.urlencoded({ extended: true }));
-//app.use(express.static('public'));
-
 app.use(express.static(path.join(__dirname)));
 
 const uri =
   "mongodb+srv://evilker:Evilker6998266@cluster0.baets.mongodb.net/?retryWrites=true&w=majority";
 
-const cookieConfig = {};
-
 const client = new MongoClient(uri);
 
 async function main() {
   try {
-    // Connect to the MongoDB cluster
     await client.connect();
     console.log("DB is connected");
   } catch (e) {
     console.log(e);
-    // } finally{
-    //   await client.close();
-    // }
   }
 }
 
 main().catch(console.error);
-
-const cartCellSchema = new mongoose.Schema({
-  product: Object,
-  addedTime: String,
-});
-
-const userSchema = new mongoose.Schema({
-  email: {
-    type: String,
-    required: true,
-  },
-  password: {
-    type: Number,
-    required: true.valueOf,
-  },
-  cart: {
-    type: Object,
-  },
-});
-
-const userModel = mongoose.model("Users", userSchema);
 
 app.get("/isloggedin", async (req, res) => {
   if (req.cookies === {} || !req.cookies?.session) {
@@ -99,7 +62,6 @@ app.post("/register", async (req, res, next) => {
       user = {
         email: req.body.email,
         password: req.body.password,
-        // cart: new Array(null),
       };
     }
 
@@ -109,8 +71,6 @@ app.post("/register", async (req, res, next) => {
         .collection("Users")
         .insertOne({ user })
         .then((newUserAfterInsert) => {
-          // let newUserID = newUserAfterInsert._id;
-
           return res.status(200).json({ newUserWasAdded: true });
         });
     }
@@ -136,8 +96,6 @@ app.post("/login", async (req, res, _next) => {
 
     console.log("USER: ", userFromDB);
 
-    //userFromDB = await userFromDB.json();
-
     if (userFromDB === null) {
       console.log("user is null");
       res.status(200).json({ emailExists: false, passwordExists: false });
@@ -153,7 +111,7 @@ app.post("/login", async (req, res, _next) => {
         res.cookie(
           "session",
           { userID: loggedInUserID, email: user.email },
-          { maxAge: 864000000 }
+          { maxAge: 1800000 }
         );
         //rememberme wasn't checked
       } else {
@@ -161,7 +119,7 @@ app.post("/login", async (req, res, _next) => {
         res.cookie(
           "session",
           { userID: loggedInUserID, email: user.email },
-          { maxAge: 1800000 }
+          { maxAge: 2592000000 }
         );
       }
       //insert event of logging in to the events
@@ -178,18 +136,18 @@ app.post("/login", async (req, res, _next) => {
     return res.redirect("/login.html");
   }
 });
+
 app.use(
   fileUpload({
     limits: { fileSize: 50 * 1024 * 1024 },
   })
 );
+
 app.post("/addNewProductToDB", async (req, res, next) => {
-  let product = null;
-  // let name = req.body.name;
   console.log("in adingNewProductToDB from server, name:".name);
 
   const imgAsBase64 = req.files ? req.files.file.data.toString("base64") : "";
-  const addtoBase64 = "data:image/jpeg;charset=utf-8;base64,"
+  const addtoBase64 = "data:image/jpeg;charset=utf-8;base64,";
   const img = addtoBase64 + imgAsBase64;
 
   try {
@@ -201,20 +159,16 @@ app.post("/addNewProductToDB", async (req, res, next) => {
     if (nameAlreadyExist) {
       console.log("product: ", nameAlreadyExist);
       return res.status(200).send({ nameAlreadyExist: true });
-    } else {
-      // product = {
-      //   name: req.body.name,
-      //   price: req.body.price,
-      //   image: req.body.image,
-      // };
     }
 
     let newProductAfterInsert = await client
       .db("ShoesStore")
       .collection("Products")
-      .insertOne(
-        { name: req.body.itemName, price: req.body.itemPrice, image: img }
-      );
+      .insertOne({
+        name: req.body.itemName,
+        price: req.body.itemPrice,
+        image: img,
+      });
 
     if (newProductAfterInsert) {
       return res.status(200).json({ newProductWasAdded: true });
@@ -277,11 +231,9 @@ app.post("/addItemToCart", async (req, res, _next) => {
     if (!productFromDB) {
       throw new Error("No result about this product");
     }
-    
-    console.log("new product dataURL image:", productFromDB.image);
-    //We don't render pictures of products in cart. 
-    //This image of the product that is added to the cookie, is only used in cart.
-
+    //We don't render pictures of products in cart.
+    //The data of productFromDB is only used in cart.
+    //Thus, we can set the long image dataURL to null
     if (productFromDB.image.length > 4096) {
       productFromDB.image = null;
     }
@@ -300,18 +252,15 @@ app.post("/addItemToCart", async (req, res, _next) => {
         console.log("productID FROM DB:", productFromDB._id.valueOf());
 
         if (product.product._id.valueOf() == productFromDB._id.valueOf()) {
-          //product[1] is productCount
           productWasFoundInCookies = true;
           req.cookies.cart[i].count += 1;
           res.cookie("cart", currentCart, { maxAge: 1800000 });
-          // console.log("COUNT VAL:", res.cookie.cart);
           res.status(200).json({ productFromDB });
         }
       }
     });
 
     if (productWasFoundInCookies === false) {
-      // currentCart.push([productFromDB, 1]);
       // products are saved for 30 minutes in cart, unless user logges out
       if (currentCart === []) {
         res.cookie(
@@ -323,7 +272,6 @@ app.post("/addItemToCart", async (req, res, _next) => {
         currentCart.push({ product: productFromDB, count: 1 });
         res.cookie("cart", currentCart, { maxAge: 1800000 });
       }
-      // console.log(res.cookie.cart.valueOf());
       res.status(200).json({ productFromDB });
     }
   } catch (error) {
@@ -351,8 +299,7 @@ app.post("/removeItemFromCart", async (req, res, _next) => {
     productFromDB = await productFromDB.json();
 
     console.log("product: ", productFromDB);
-
-    //add the product to a new session
+    //add the product to cookie
     const currentCart = req.cookies.cart || [];
 
     const newCart = currentCart.filter(
@@ -361,19 +308,6 @@ app.post("/removeItemFromCart", async (req, res, _next) => {
 
     res.cookie("cart", newCart, { maxAge: 1800000 });
     res.status(200).json({ productWasRemovedFromCart: true });
-
-    // currentCart.forEach((product) => {
-    //   console.log("productID:", product[0]._id);
-
-    //   if (product[0]._id === productFromDB._id) {
-    //     //product[1] is productCount
-    //     // req.cookies.cart.product.remove();
-    //     console.log("removed product from cart\n");
-    //     res.status(200).json({ productFromDB });
-    //   } else {
-    //     throw new Error("Something went wrong.. please try again");
-    //   }
-    // });
   } catch (error) {
     console.log("ERR: ", error);
     // email not found / error
@@ -417,10 +351,6 @@ app.post("/getUsersFromDB", async (req, res, _next) => {
             res.status(200).json({ usersFromDB });
           }
         });
-
-      // productsFromDB = await productsFromDB.json();
-
-      //no products were found
     }
   } catch (error) {
     console.log("ERR: ", error);
@@ -436,7 +366,6 @@ app.post("/getItemsFromDB", async (req, res, _next) => {
 
   try {
     //user was found in db - return it's id
-
     if (searchVal === null || searchVal === "") {
       await client
         .db("ShoesStore")
@@ -466,10 +395,6 @@ app.post("/getItemsFromDB", async (req, res, _next) => {
       } else {
         res.status(200).json({ noResults: true });
       }
-
-      // productsFromDB = await productsFromDB.json();
-
-      //no products were found
     }
   } catch (error) {
     console.log("ERR: ", error);
@@ -496,7 +421,6 @@ app.post("/getEventsFromDB", async (req, res) => {
 
   try {
     //user was found in db - return it's id
-
     if (searchVal === null || searchVal === "") {
       await client
         .db("ShoesStore")
@@ -548,8 +472,6 @@ app.post("/clearCart", async (req, res) => {
     }
   } else {
     const currentCart = req.cookies.cart || [];
-    // const productCount = 1;
-    let productWasFoundInCookies = false;
     let i = -1;
     console.log("current cart:", currentCart);
 
@@ -558,22 +480,6 @@ app.post("/clearCart", async (req, res) => {
     );
     res.cookie("cart", newCart, { maxAge: 1800000 });
     res.status(200).json({ productWasRemovedFromCart: true });
-
-    // currentCart.forEach((product) => {
-    //   console.log("cookie:", req.cookies.cart.valueOf());
-    //   i += 1;
-    //   console.log("itemID:", product.product._id);
-    //   console.log("itemID FROM DB:", itemID.valueOf());
-
-    //   if (product.product._id.valueOf() == itemID.valueOf()) {
-    //     //product[1] is productCount
-    //     productWasFoundInCookies = true;
-    //     req.cookies.cart[i]
-    //     res.cookie("cart", currentCart, { maxAge: 1800000 });
-    //     // console.log("COUNT VAL:", res.cookie.cart);
-    //     res.status(200).json({ productWasRemovedFromCart: true });
-    //   }
-    // });
   }
 });
 
@@ -609,7 +515,6 @@ app.get("/register", (req, res) => {
 
 app.get("/logout", async (req, res) => {
   let loggedInUserEmail = req.cookies?.session.email;
-
   await client
     .db("ShoesStore")
     .collection("Events")
@@ -624,16 +529,6 @@ app.get("/logout", async (req, res) => {
 app.post("/backToCart", (req, res) => {
   res.redirect("cart.html");
 });
-
-//check for user authentication before trying to view cart
-// app.get("/cart.html", (req, res) => {
-//   res.sendFile(__dirname + "/index.html");
-// });
-
-// app.post("/getProducts", (req, res) => {
-//   let payload = req.body.payload.trim();
-//   console.log(payload);
-// });
 
 //listen for request on port 3000, and as a callback function have the port listened on logged
 app.listen(port, hostname, () => {

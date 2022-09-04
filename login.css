@@ -1,73 +1,75 @@
 @import url('https://fonts.googleapis.com/css2?family=Lobster&family=Palette+Mosaic&display=swap');
+
 * {
     margin: 0;
     padding: 0;
     font-family: 'Poppins', sans-serif;
 }
 
-body {  
-    margin: 0;  
-    padding: 0;  
-    background-color:orange;    
+body {
+    margin: 0;
+    padding: 0;
+    background-color: orange;
     font-family: 'Poppins';
-}  
-.login {  
-        width: 382px;  
-        overflow: hidden;  
-        margin: auto;  
-        margin: 20 0 0 450px;  
-        padding: 80px;  
-        background: whitesmoke;  
-        border-radius: 15px ;       
-}  
-
-h2 {  
-    font-size: 40px;
-    text-align: center;  
-    color: black;  
-    padding: 20px;  
-} 
-
-label {  
-    color: rgb(192, 161, 106);  
-    font-size: 17px;  
-}  
-
-#Uname {  
-    width: 300px;  
-    height: 30px;  
-    border: none;  
-    border-radius: 3px;  
-    padding-left: 8px;  
-}  
-
-#Pass {  
-    width: 300px;  
-    height: 30px;  
-    border: none;  
-    border-radius: 3px;  
-    padding-left: 8px;  
-      
-}  
-
-#log {  
-    width: 300px;  
-    height: 30px;  
-    border: none;  
-    border-radius: 17px;  
-    padding-left: 7px;  
-    color: black;  
-}  
-
-span {  
-    color: orange;  
-    font-size: 17px;  
 }
 
-a {  
-    float: right;  
+.login {
+    width: 382px;
+    overflow: hidden;
+    margin: auto;
+    margin: 20 0 0 450px;
+    padding: 80px;
+    background: whitesmoke;
+    border-radius: 15px;
+}
+
+h2 {
+    font-size: 40px;
+    text-align: center;
+    color: black;
+    padding: 20px;
+}
+
+label {
+    color: rgb(192, 161, 106);
+    font-size: 17px;
+}
+
+#Uname {
+    width: 300px;
+    height: 30px;
+    border: none;
+    border-radius: 3px;
+    padding-left: 8px;
+}
+
+#Pass {
+    width: 300px;
+    height: 30px;
+    border: none;
+    border-radius: 3px;
+    padding-left: 8px;
+
+}
+
+#log {
+    width: 300px;
+    height: 30px;
+    border: none;
+    border-radius: 17px;
+    padding-left: 7px;
+    color: black;
+}
+
+span {
+    color: orange;
+    font-size: 17px;
+}
+
+a {
+    float: right;
     /* background-color: rgb(235, 92, 92);   */
-}  
+}
 
 /* Add a black background color to the top navigation */
 .topnav {
@@ -77,27 +79,27 @@ a {
 
 /* Style the links inside the navigation bar */
 .topnav a {
-  float: left;
-  color: #f2f2f2;
-  text-align: center;
-  padding: 14px 16px;
-  text-decoration: none;
-  font-size: 17px;
+    float: left;
+    color: #f2f2f2;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 17px;
 }
 
 /* Change the color of links on hover */
 .topnav a:hover {
-  background-color: #ddd;
-  color: black;
+    background-color: #ddd;
+    color: black;
 }
 
 /* Add a color to the active/current link */
 .topnav a.active {
-  background-color: gray;
-  color: white;
+    background-color: gray;
+    color: white;
 }
 
 /* Right-aligned section inside the top navigation */
 .topnav-right {
-  float: right;
+    float: right;
 }

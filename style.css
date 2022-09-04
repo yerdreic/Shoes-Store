@@ -69,11 +69,11 @@ h1 .style {
     display: block;
     border-radius: 30px;
     background-size: 200% auto;
-    box-shadow: 3px 8px 22px rgba(22,21,21,.15);
+    box-shadow: 3px 8px 22px rgba(22, 21, 21, .15);
 }
 
 .social-media {
-    font-family: 'Poppins',sans-serif;
+    font-family: 'Poppins', sans-serif;
     margin-top: 80px;
     margin-left: 50px;
     text-decoration: none;
@@ -89,7 +89,7 @@ h1 .style {
     height: 27px;
     width: 27px;
     text-align: center;
-    box-shadow: 3px 8px 22px rgba(22,21,21,.15);
+    box-shadow: 3px 8px 22px rgba(22, 21, 21, .15);
 }
 
 .icons:hover {

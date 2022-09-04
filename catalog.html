@@ -12,9 +12,6 @@
       await setNavBar();
       await sendDataFromSearch();
     }
-    // document.addEventListener('DOMContentLoaded', async() => {
-
-
   </script>
 </head>
 
@@ -31,40 +28,18 @@
     </nav>
   </div>
   <div class="search-wrapper">
-    <lable type="button" id="searchbtn" for="search" onclick='cleanProductsView();sendDataFromSearch(document.getElementById("search").value);'>Search</lable>
+    <lable type="button" id="searchbtn" for="search"
+      onclick='cleanProductsView();sendDataFromSearch(document.getElementById("search").value);'>Search</lable>
     <input type="search" id="search" data-search>
   </div>
   <div class="pbody">
-  <div class="Items container">
-    <h1 class="text-center text-muted">Our Products catalog</h1>
-    <div class="row flow-offset-1" id="insertItemsUnder">
-
-      <!-- <div id="item">
-      <div class="col-xs-6 col-md-4" id="template">
-        <div class="product tumbnail thumbnail-3" id="under-main-template">
-          <img src="images/shoes1.jpg" id="under-main-template-1">
-          <div class="caption" id="under-main-template-1">
-            <button id="under-main-template-2">
-              <span class="add-to-cart">Add To Cart</span>
-              <i class="fas fa-shopping-cart"></i>
-              <i class="fas fa-shopping-bag"></i>
-              <span class="added-to-cart">Added To Cart</span>
-            </button> -->
-      <!-- added id to item name -->
-      <!-- <h6 id="template-item-name"></h6>
-            <span class="price"> -->
-      <!-- added id to price -->
-      <!-- <del id="template-item-price"></del>
-            </span>
-          </div>
-        </div>
+    <div class="Items container">
+      <h1 class="text-center text-muted">Our Products catalog</h1>
+      <div class="row flow-offset-1" id="insertItemsUnder">
       </div>
-    </div> -->
-
     </div>
   </div>
-</div>
-<button onclick="topFunction()" id="myBtn" title="Go to top">Scroll Up</button>
+  <button onclick="topFunction()" id="myBtn" title="Go to top">Scroll Up</button>
 </body>
 
 </html>

@@ -7,7 +7,7 @@ body {
   overflow-x: hidden;
 }
 
-.faq-header{
+.faq-header {
   font-size: 42px;
   border-bottom: 1px dotted #ccc;
   padding: 24px;
@@ -47,7 +47,7 @@ body {
   transition: .4s ease;
 }
 
-.panel:checked ~ .panel-content{
+.panel:checked~.panel-content {
   height: auto;
   opacity: 1;
   padding: 14px;
@@ -60,7 +60,7 @@ body {
   z-index: 5;
   font-size: 42px;
   line-height: 100%;
-  -webkit-user-select: none;    
+  -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   -o-user-select: none;
@@ -71,7 +71,7 @@ body {
   transition: .2s ease;
 }
 
-.panel:checked ~ .plus {
+.panel:checked~.plus {
   -webkit-transform: rotate(45deg);
   -moz-transform: rotate(45deg);
   -o-transform: rotate(45deg);
@@ -81,5 +81,3 @@ body {
 .panel {
   display: none;
 }
-
-

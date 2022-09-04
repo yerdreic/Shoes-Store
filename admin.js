@@ -26,18 +26,10 @@ const getUsersFromDB = async (searchVal) => {
       let users = res.usersFromDB;
 
       users.forEach((user) => {
-        // looks like this:
-        // value: {
-        //     _id: new ObjectId("6300ec5c762d0dd5f28755c5"),
-        //     newUser: { email: 'yael@example.com', password: '123456' },
-        //     cart: { product: [Object], addedTime: '11:21:49' }
-        //   }
         let userEmail = user.email;
         let userCart = user.cart;
         console.log(userEmail);
         console.log(userCart);
-
-        // EDEN - needs to add the elements to the page as html elements
       });
     }
   } catch {
@@ -73,7 +65,6 @@ const getLoginLogoutEvents = async (searchVal) => {
       //we'll create an element from each product
       let usersTable = document.getElementById("usersTable");
 
-      //iterating through login and logout
       events.forEach((event) => {
         //iterating through the users are at the event (login/logout)
         let tableRow = document.createElement("tr");
@@ -133,7 +124,6 @@ const getProductsFromDB = async () => {
         console.log(product.name);
         console.log(product.price);
 
-        //imgSrc = product.image;
         let productName = product.name;
         let productPrice = product.price;
         let productImage = product.image;
@@ -143,7 +133,6 @@ const getProductsFromDB = async () => {
         console.log(productId);
         let tableRow = document.createElement("tr");
         let itemName = document.createElement("td");
-        // itemName.id = productName;
         let itemPrice = document.createElement("td");
         let removeItem = document.createElement("td");
         let removeButton = document.createElement("button");
@@ -154,7 +143,7 @@ const getProductsFromDB = async () => {
         itemImage.innerText = productImage;
         removeButton.setAttribute(
           "onclick",
-          'onClickRemoveProductEventHandler("' +productName+ '")'
+          'onClickRemoveProductEventHandler("' + productName + '")'
         );
 
         removeItem.appendChild(removeButton);
@@ -164,8 +153,6 @@ const getProductsFromDB = async () => {
         tableRow.appendChild(itemImage);
 
         productsTable.appendChild(tableRow);
-
-        // EDEN - needs to add the elements to the page as html elements
       });
     }
   } catch (error) {
@@ -182,7 +169,6 @@ const getProductsFromDB = async () => {
 const onClickAddNewProductEventHandler = async () => {
   const itemName = document.getElementById("itemName").value;
   const itemPrice = document.getElementById("itemPrice").value;
-  // const itemImage = document.getElementById("itemImage").value;
 
   const data = new FormData();
   data.append("file", fileupload.files[0]);
@@ -229,7 +215,6 @@ const onClickAddNewProductEventHandler = async () => {
 };
 
 const onClickRemoveProductEventHandler = async (productName) => {
-  // const itemName = document.getElementById("itemName").value;
   console.log("product:", productName);
   try {
     let res = await fetch(`/removeProductFromDB`, {
@@ -249,7 +234,6 @@ const onClickRemoveProductEventHandler = async (productName) => {
 
     if (res.productWasDeleted === true) {
       window.alert("Product was deleted from db");
-      // need to redirect to the page in which the products are shown under admin
       setTimeout(() => {
         letRedirect("/admin.html");
       }, 3000);

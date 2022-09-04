@@ -1,167 +1,156 @@
 const request = require("supertest");
 
-
 // const app = require('Online-Shoes-Store\app.js');
 //const server = require('.\server');
 // import didn't work so I had to manually bring the routes to here - tests are at the buttom
 
 //app module
 const letRedirect = async (url) => {
-    await fetch(url, { method: "POST" })
-      .then((response) => {
-        if (response.redirected) {
-          window.location.href = response.url;
-        }
-      })
-      .catch((error) => {
-        console.log("ERR: Something is wrong. Please refresh the page");
-      });
-  };
-  
-  //window.addEventListener("load", async () => {
-  const setNavBar = async () => {
-    const nav = document.getElementById("navElem");
-    // if user is authenticated:
-    try {
-      let res = await fetch("/isloggedin");
-      console.log("at isloggedin", res);
-  
-      let jsonRes = await res.json();
-  
-  
-  
-      // let userName = email.substr(0, email.indexOf('@')); 
-  
-      if (res.status === 200 && jsonRes.isLoggedIn === true) {
-        // logged in
-        let email = jsonRes.userCookie.email;
-        let userName = email.substring(0, email.indexOf("@"));
-        console.log("from app.js:", userName);
-  
-        const cartLine = document.createElement("li");
-        cartLine.innerHTML = '<a href="./cart.html">Cart</a>';
-        nav.appendChild(cartLine);
-  
-        const logoutLine = document.createElement("li");
-        logoutLine.innerHTML = '<a href="/logout">Logout</a>';
-        const nameElement = document.createElement("li");
-        nameElement.innerText = `Hello, ${userName}`;
-  
-        nav.appendChild(logoutLine);
-        nav.appendChild(nameElement);
-  
-      } else {
-        // not logged in
-        const loginLine = document.createElement("li");
-        loginLine.innerHTML = '<a href="./login.html">Log In</a>';
-        nav.appendChild(loginLine);
+  await fetch(url, { method: "POST" })
+    .then((response) => {
+      if (response.redirected) {
+        window.location.href = response.url;
       }
-    } catch (error) {
-      console.log("ERR: ", error);
-      window.alert("Something went wrong.. Sorry");
-  
+    })
+    .catch((error) => {
+      console.log("ERR: Something is wrong. Please refresh the page");
+    });
+};
+
+const setNavBar = async () => {
+  const nav = document.getElementById("navElem");
+  // if user is authenticated:
+  try {
+    let res = await fetch("/isloggedin");
+    console.log("at isloggedin", res);
+
+    let jsonRes = await res.json();
+
+    if (res.status === 200 && jsonRes.isLoggedIn === true) {
+      // logged in
+      let email = jsonRes.userCookie.email;
+      let userName = email.substring(0, email.indexOf("@"));
+      console.log("from app.js:", userName);
+
+      const cartLine = document.createElement("li");
+      cartLine.innerHTML = '<a href="./cart.html">Cart</a>';
+      nav.appendChild(cartLine);
+
+      const logoutLine = document.createElement("li");
+      logoutLine.innerHTML = '<a href="/logout">Logout</a>';
+      const nameElement = document.createElement("li");
+      nameElement.innerText = `Hello, ${userName}`;
+
+      nav.appendChild(logoutLine);
+      nav.appendChild(nameElement);
+    } else {
+      // not logged in
+      const loginLine = document.createElement("li");
+      loginLine.innerHTML = '<a href="./login.html">Log In</a>';
+      nav.appendChild(loginLine);
+    }
+  } catch (error) {
+    console.log("ERR: ", error);
+    window.alert("Something went wrong.. Sorry");
+
+    setTimeout(() => {
+      letRedirect("/notSuccessLogin");
+    }, 3000);
+  }
+};
+
+const onClickLoginEventHandler = async () => {
+  const email = document.getElementById("Uname").value;
+  const password = document.getElementById("Pass").value;
+  const rememberMe = document.getElementById("check").checked;
+
+  try {
+    let res = await fetch(`/login`, {
+      body: JSON.stringify({
+        email: email,
+        password: password,
+        rememberMe: rememberMe,
+      }),
+      cache: "no-cache",
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    if (!res) {
+      throw new Error("No result about this user");
+    }
+
+    if (res.status !== 200) {
+      throw new Error(res.message);
+    }
+
+    res = await res.json();
+
+    if (res.emailExists && res.passwordExists) {
+      letRedirect(`/successLogin`);
+    }
+
+    if (res.emailExists && !res.passwordExists) {
+      window.alert("Wrong password. Please try again.");
+
       setTimeout(() => {
         letRedirect("/notSuccessLogin");
       }, 3000);
     }
-  };
-  
-  const onClickLoginEventHandler = async () => {
-    const email = document.getElementById("Uname").value;
-    const password = document.getElementById("Pass").value;
-    const rememberMe = document.getElementById("check").checked;
-  
-    try {
-      let res = await fetch(`/login`, {
-        body: JSON.stringify({
-          email: email,
-          password: password,
-          rememberMe: rememberMe,
-        }),
-        cache: "no-cache",
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      });
-  
-      if (!res) {
-        throw new Error("No result about this user");
-      }
-  
-      if (res.status !== 200) {
-        throw new Error(res.message);
-      }
-  
-      res = await res.json();
-  
-      if (res.emailExists && res.passwordExists) {
-        // res is ok == what to do from here !?
+  } catch (error) {
+    console.log("errr ", error);
+    window.alert("Login failed. Please try again");
+
+    setTimeout(() => {
+      letRedirect("/notSuccessLogin");
+    }, 3000);
+  }
+};
+
+const onClickRegisterEventHandler = async () => {
+  const email = document.getElementById("Uname").value;
+  const password = document.getElementById("Pass").value;
+
+  try {
+    let res = await fetch(`/register`, {
+      body: JSON.stringify({
+        email: email,
+        password: password,
+      }),
+      cache: "no-cache",
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    res = await res.json();
+
+    if (res.emailExists) {
+      window.alert("Sorry, that email is taken. Maybe you need to login");
+
+      setTimeout(() => {
+        letRedirect(`/notSuccessLogin`);
+      }, 3000);
+    }
+
+    if (res.newUserWasAdded === true) {
+      window.alert("New user was created. Please login");
+
+      setTimeout(() => {
         letRedirect(`/successLogin`);
-      }
-  
-      if (res.emailExists && !res.passwordExists) {
-        // only email was found
-        window.alert("Wrong password. Please try again.");
-  
-        setTimeout(() => {
-          letRedirect("/notSuccessLogin");
-        }, 3000);
-      }
-  
-    } catch (error) {
-      console.log("errr ", error);
-      window.alert("Login failed. Please try again");
-  
-      setTimeout(() => {
-        letRedirect("/notSuccessLogin");
       }, 3000);
     }
-  };
-  
-  const onClickRegisterEventHandler = async () => {
-    const email = document.getElementById("Uname").value;
-    const password = document.getElementById("Pass").value;
-  
-    try {
-      let res = await fetch(`/register`, {
-        body: JSON.stringify({
-          email: email,
-          password: password,
-        }),
-        cache: "no-cache",
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      });
-  
-      res = await res.json();
-  
-      if (res.emailExists) {
-        window.alert("Sorry, that email is taken. Maybe you need to login");
-  
-        setTimeout(() => {
-          letRedirect(`/notSuccessLogin`);
-        }, 3000);
-      }
-  
-      if (res.newUserWasAdded === true) {
-        window.alert("New user was created. Please login");
-  
-        setTimeout(() => {
-          letRedirect(`/successLogin`);
-        }, 3000);
-      }
-    } catch (error) {
-      console.log("ERR ", error);
-      window.alert("Register failed. Please try again");
-  
-      setTimeout(() => {
-        letRedirect("/redirectHome");
-      }, 3000);
-    }
-  };
+  } catch (error) {
+    console.log("ERR ", error);
+    window.alert("Register failed. Please try again");
 
+    setTimeout(() => {
+      letRedirect("/redirectHome");
+    }, 3000);
+  }
+};
 
-  //server module
-  //Load HTTP module
+//server module
+//Load HTTP module
 const express = require("express");
 const BSON = require("bson");
 const flash = require("express-flash");
@@ -170,11 +159,6 @@ const hostname = "127.0.0.1";
 const port = 3000;
 const mongoose = require("mongoose");
 const { MongoClient } = require("mongodb");
-//const products = require('./products');
-//const config = require("config");
-//const { collection } = require("./modules/users");
-//const { any } = require("webidl-conversions");
-//const dbConfig = config.get("Customer.dbConfig.dbName");
 const app = express();
 const cookieParser = require("cookie-parser");
 const cookieSession = require("cookie-session");
@@ -204,24 +188,11 @@ async function main() {
     console.log("DB is connected");
   } catch (e) {
     console.log(e);
-    // } finally{
-    //   await client.close();
-    // }
   }
 }
 
 main().catch(console.error);
 
-// const userExists = await client
-//   .db("ShoesStore")
-//   .collection("Users")
-//   .findOne({ email: "example@example.com" });
-// if (!userExists) {
-//   client.db("ShoesStore").collection("Users").insertOne({
-//     email: req.body.email,
-//     password: req.body.password,
-//   });
-// }
 const cartCellSchema = new mongoose.Schema({
   product: Object,
   addedTime: String,
@@ -281,14 +252,11 @@ app.post("/register", async (req, res, next) => {
         .collection("Users")
         .insertOne({ user })
         .then((newUserAfterInsert) => {
-          // let newUserID = newUserAfterInsert._id;
-
           return res.status(200).json({ newUserWasAdded: true });
         });
     }
   } catch (error) {
     console.log("ERR: ", error);
-    // email not found / error
     return res.redirect("/login.html");
   }
 });
@@ -307,8 +275,6 @@ app.post("/login", async (req, res, _next) => {
       .findOne({ $or: [{ email: user.email }, { password: user.password }] });
 
     console.log("USER: ", userFromDB);
-
-    //userFromDB = await userFromDB.json();
 
     if (userFromDB === null) {
       console.log("user is null");
@@ -353,40 +319,37 @@ app.post("/login", async (req, res, _next) => {
 
 app.post("/addNewProductToDB", async (req, res, next) => {
   let product = null;
-  let name = req.body.name;
+  // let name = req.body.name;
+  console.log("in adingNewProductToDB from server, name:".name);
 
-  console.log("in addingNewProductToDB from server, name:".name);
+  const imgAsBase64 = req.files ? req.files.file.data.toString("base64") : "";
+  const addtoBase64 = "data:image/jpeg;charset=utf-8;base64,";
+  const img = addtoBase64 + imgAsBase64;
 
   try {
     let nameAlreadyExist = await client
       .db("ShoesStore")
       .collection("Products")
-      .findOne({ name: req.body.name });
+      .findOne({ name: req.body.itemName });
 
     if (nameAlreadyExist) {
       console.log("product: ", nameAlreadyExist);
       return res.status(200).send({ nameAlreadyExist: true });
-    } else {
-      // product = {
-      //   name: req.body.name,
-      //   price: req.body.price,
-      //   image: req.body.image,
-      // };
     }
 
     let newProductAfterInsert = await client
       .db("ShoesStore")
       .collection("Products")
-      .insertOne(
-        { name: req.body.name },
-        { price: req.body.price },
-        { image: req.body.image }
-      );
+      .insertOne({
+        name: req.body.itemName,
+        price: req.body.itemPrice,
+        image: img,
+      });
 
     if (newProductAfterInsert) {
       return res.status(200).json({ newProductWasAdded: true });
     } else {
-      throw new Error("Something went wrond. Please try again");
+      throw new Error("Something went wrong. Please try again");
     }
   } catch (error) {
     console.log("ERR: ", error);
@@ -453,31 +416,19 @@ app.post("/addItemToCart", async (req, res, _next) => {
       .db("ShoesStore")
       .collection("Users")
       .findOneAndUpdate(
-        //at the moment, it overrides the last element in cart. Needs to be appended
         { email: user.email },
         { $set: { cart: { $push: { product: productFromDB } } } }
       );
-
-    // .db("ShoesStore")
-    // .collection("Users")
-    // .updateOne(
-    //   { email: user.email },
-    //   {$set: { cart : {$push: [{ productFromDB}, {addeTime } ] } } }
-    // );
 
     if (!updatedUser) {
       throw new Error("No result about this user");
     }
     console.log("updatedUser: ", updatedUser);
 
-    //productFromDB = await productFromDB.json();
-
     console.log("product: ", productFromDB);
     console.log("updatedUser: ", updatedUser);
 
-    //add the product to a new session
     const currentCart = req.cookies.cart || [];
-    // const productCount = 1;
     let productWasFoundInCookies = false;
     let i = -1;
     console.log("current cart:", currentCart);
@@ -485,22 +436,18 @@ app.post("/addItemToCart", async (req, res, _next) => {
     currentCart.forEach((product) => {
       console.log("cookie:", req.cookies.cart.valueOf());
       i += 1;
-      // let productId = new BSON.ObjectId(product[0]._id);
       console.log("productID:", product.product._id);
       console.log("productID FROM DB:", productFromDB._id.valueOf());
 
       if (product.product._id.valueOf() == productFromDB._id.valueOf()) {
-        //product[1] is productCount
         productWasFoundInCookies = true;
         req.cookies.cart[i].count += 1;
         res.cookie("cart", currentCart, { maxAge: 1800000 });
-        // console.log("COUNT VAL:", res.cookie.cart);
         res.status(200).json({ productFromDB });
       }
     });
 
     if (productWasFoundInCookies === false) {
-      // currentCart.push([productFromDB, 1]);
       // products are saved for 30 minutes in cart, unless user logges out
       if (currentCart === []) {
         res.cookie(
@@ -512,12 +459,10 @@ app.post("/addItemToCart", async (req, res, _next) => {
         currentCart.push({ product: productFromDB, count: 1 });
         res.cookie("cart", currentCart, { maxAge: 1800000 });
       }
-      // console.log(res.cookie.cart.valueOf());
       res.status(200).json({ productFromDB });
     }
   } catch (error) {
     console.log("ERR: ", error);
-    // email not found / error
     return res.redirect("/index.html");
   }
 });
@@ -547,8 +492,6 @@ app.post("/removeItemFromCart", async (req, res, _next) => {
       console.log("productID:", product[0]._id);
 
       if (product[0]._id === productFromDB._id) {
-        //product[1] is productCount
-        // req.cookies.cart.product.remove();
         console.log("removed product from cart\n");
         res.status(200).json({ productFromDB });
       } else {
@@ -568,7 +511,6 @@ app.post("/getUsersFromDB", async (req, res, _next) => {
 
   try {
     //user was found in db - return it's id
-
     if (searchVal === null || searchVal === "") {
       await client
         .db("ShoesStore")
@@ -598,14 +540,9 @@ app.post("/getUsersFromDB", async (req, res, _next) => {
             res.status(200).json({ usersFromDB });
           }
         });
-
-      // productsFromDB = await productsFromDB.json();
-
-      //no products were found
     }
   } catch (error) {
     console.log("ERR: ", error);
-    // email not found / error
     return res.redirect("/login.html");
   }
 });
@@ -616,8 +553,6 @@ app.post("/getItemsFromDB", async (req, res, _next) => {
   console.log("search value from server:", searchVal);
 
   try {
-    //user was found in db - return it's id
-
     if (searchVal === null || searchVal === "") {
       await client
         .db("ShoesStore")
@@ -647,10 +582,6 @@ app.post("/getItemsFromDB", async (req, res, _next) => {
       } else {
         res.status(200).json({ noResults: true });
       }
-
-      // productsFromDB = await productsFromDB.json();
-
-      //no products were found
     }
   } catch (error) {
     console.log("ERR: ", error);
@@ -676,8 +607,6 @@ app.post("/getEventsFromDB", async (req, res) => {
   console.log("search value from server:", searchVal);
 
   try {
-    //user was found in db - return it's id
-
     if (searchVal === null || searchVal === "") {
       await client
         .db("ShoesStore")
@@ -729,7 +658,6 @@ app.post("/clearCart", async (req, res) => {
     }
   } else {
     const currentCart = req.cookies.cart || [];
-    // const productCount = 1;
     let productWasFoundInCookies = false;
     let i = -1;
     console.log("current cart:", currentCart);
@@ -741,11 +669,9 @@ app.post("/clearCart", async (req, res) => {
       console.log("itemID FROM DB:", itemID.valueOf());
 
       if (product.product._id.valueOf() == itemID.valueOf()) {
-        //product[1] is productCount
         productWasFoundInCookies = true;
         req.cookies.cart[i] = null;
         res.cookie("cart", currentCart, { maxAge: 1800000 });
-        // console.log("COUNT VAL:", res.cookie.cart);
         res.status(200).json({ productWasRemovedFromCart: true });
       }
     });
@@ -805,47 +731,31 @@ app.get("/cart.html", (req, res) => {
   res.sendFile(__dirname + "/index.html");
 });
 
-// app.post("/getProducts", (req, res) => {
-//   let payload = req.body.payload.trim();
-//   console.log(payload);
-// });
+//tests
 
-//listen for request on port 3000, and as a callback function have the port listened on logged
-// app.listen(port, hostname, () => {
-//   console.log(`Server running at http://${hostname}:${port}/`);
-// });
-
-  
-  //tests
-
-describe('Check Routes', function () {
-
-test('responds to /index.html', async () => {
-        const res = await request(app).get('/index.html'); 
-        expect(res.statusCode).toBe(200||401);
-    });  
-
- test('responds to /login.html', async () => {
-    const res = await request(app).get('/login.html'); 
-    expect(res.statusCode).toBe(200||401);
+describe("Check Routes", function () {
+  test("responds to /index.html", async () => {
+    const res = await request(app).get("/index.html");
+    expect(res.statusCode).toBe(200 || 401);
   });
 
-  test('responds to /login.html', async () => {
-    const res = await request(app).get('/login.html'); 
-    expect(res.statusCode).toBe(200||401);
+  test("responds to /login.html", async () => {
+    const res = await request(app).get("/login.html");
+    expect(res.statusCode).toBe(200 || 401);
   });
 
-  test('responds to /register.html', async () => {
-    const res = await request(app).get('/register.html'); 
-    expect(res.statusCode).toBe(200||401);
+  test("responds to /login.html", async () => {
+    const res = await request(app).get("/login.html");
+    expect(res.statusCode).toBe(200 || 401);
   });
 
-  test('responds to /cart.html', async () => {
-    const res = await request(app).get('/cart.html'); 
-    expect(res.statusCode).toBe(200||401);
+  test("responds to /register.html", async () => {
+    const res = await request(app).get("/register.html");
+    expect(res.statusCode).toBe(200 || 401);
   });
 
-  
-
+  test("responds to /cart.html", async () => {
+    const res = await request(app).get("/cart.html");
+    expect(res.statusCode).toBe(200 || 401);
+  });
 });
-

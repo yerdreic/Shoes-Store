@@ -12,7 +12,6 @@ const letRedirect = async (url) => {
     });
 };
 
-//window.addEventListener("load", async () => {
 const setNavBar = async () => {
   const nav = document.getElementById("navElem");
   // if user is authenticated:
@@ -21,10 +20,6 @@ const setNavBar = async () => {
     console.log("at isloggedin", res);
 
     let jsonRes = await res.json();
-
-
-
-    // let userName = email.substr(0, email.indexOf('@')); 
 
     if (res.status === 200 && jsonRes.isLoggedIn === true) {
       // logged in
@@ -44,7 +39,6 @@ const setNavBar = async () => {
 
       nav.appendChild(logoutLine);
       nav.appendChild(nameElement);
-
     } else {
       // not logged in
       const loginLine = document.createElement("li");
@@ -89,19 +83,16 @@ const onClickLoginEventHandler = async () => {
     res = await res.json();
 
     if (res.emailExists && res.passwordExists) {
-      // res is ok == what to do from here !?
       letRedirect(`/successLogin`);
     }
 
     if (res.emailExists && !res.passwordExists) {
-      // only email was found
       window.alert("Wrong password. Please try again.");
 
       setTimeout(() => {
         letRedirect("/notSuccessLogin");
       }, 3000);
     }
-
   } catch (error) {
     console.log("errr ", error);
     window.alert("Login failed. Please try again");
