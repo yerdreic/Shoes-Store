@@ -31,11 +31,12 @@
     </nav>
   </div>
   <div class="search-wrapper">
-    <lable type="button" for="search" onclick='cleanProductsView();sendDataFromSearch(document.getElementById("search").value);'>Search</lable>
+    <lable type="button" id="searchbtn" for="search" onclick='cleanProductsView();sendDataFromSearch(document.getElementById("search").value);'>Search</lable>
     <input type="search" id="search" data-search>
   </div>
+  <div class="pbody">
   <div class="Items container">
-    <h1 class="text-center text-muted">Product catalog</h1>
+    <h1 class="text-center text-muted">Our Products catalog</h1>
     <div class="row flow-offset-1" id="insertItemsUnder">
 
       <!-- <div id="item">
@@ -62,6 +63,8 @@
 
     </div>
   </div>
+</div>
+<button onclick="topFunction()" id="myBtn" title="Go to top">Scroll Up</button>
 </body>
 
 </html>

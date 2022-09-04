@@ -268,3 +268,8 @@ select.form-control {
   float: right;
  
 }
+
+h2{
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 30px;
+}

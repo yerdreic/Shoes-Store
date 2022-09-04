@@ -39,7 +39,8 @@ const setNavBar = async () => {
       const logoutLine = document.createElement("li");
       logoutLine.innerHTML = '<a href="/logout">Logout</a>';
       const nameElement = document.createElement("li");
-      nameElement.innerText = `Hello, ${userName}`;
+      nameElement.innerText = `Hello, ${userName}!`;
+      nameElement.style.color = "white";
 
       nav.appendChild(logoutLine);
       nav.appendChild(nameElement);

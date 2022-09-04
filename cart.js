@@ -99,7 +99,7 @@ const renderItemsInCart = async () => {
           let itemName = item.product.name;
           let itemPrice = item.product.price;
           let itemCount = item.count;
-          totalPrice += Number(itemPrice);
+          totalPrice += Number(itemPrice*itemCount);
 
           console.log("itemID:",itemID);
           console.log("imgSrc:",imgSrc);
