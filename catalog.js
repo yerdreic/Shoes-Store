@@ -142,22 +142,31 @@ const addedItemToCartEventHandler = async (productId) => {
         window.alert("item was added to cart!");
       }
     }
-  } catch {
-    (error) => {
-      console.log("ERR: ", error);
+
+    if (loggedIn.isLoggedIn === false) {
       window.alert(
-        "You must login in order to add this item to cart! Let's go get you logged in!"
+        "You must login in order to add this item to cart!"
       );
 
       setTimeout(() => {
-        letRedirect("/login");
+        letRedirect("/login.html");
+      }, 3000);
+    };
+
+  } catch {
+    (error) => {
+      console.log("ERR: ", error);
+      window.alert("ERR:", error);
+
+      setTimeout(() => {
+        letRedirect("/login.html");
       }, 3000);
     };
   }
 };
 
 //Get the button:
-mybutton = document.getElementById("myBtn");
+let mybutton = document.getElementById("myBtn");
 
 // When the user scrolls down 20px from the top of the document, show the button
 window.onscroll = function () {

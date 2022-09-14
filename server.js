@@ -35,13 +35,15 @@ async function main() {
 main().catch(console.error);
 
 app.get("/isloggedin", async (req, res) => {
-  if (req.cookies === {} || !req.cookies?.session) {
-    res.status(401).send({ isLoggedIn: false });
-  } else {
+  if (req.cookies?.session?.email && req.cookies?.session?.userID) {
     let userCookie = req.cookies.session;
-    console.log(userCookie);
-
+    console.log("user cookie from /isloggedin:", userCookie);
+    
     res.status(200).send({ isLoggedIn: true, userCookie });
+  } else {
+    //req.cookies.session = [];
+    res.clearCookie("session");
+    res.status(401).send({ isLoggedIn: false });
   }
 });
 
@@ -113,7 +115,7 @@ app.post("/login", async (req, res, _next) => {
           { userID: loggedInUserID, email: user.email },
           { maxAge: 1800000 }
         );
-        //rememberme wasn't checked
+        //rememberme was checked
       } else {
         console.log("remember me is true");
         res.cookie(
@@ -506,6 +508,10 @@ app.post("/successLogin", (req, res) => {
 });
 
 app.post("/notSuccessLogin", (req, res) => {
+  res.redirect("login.html");
+});
+
+app.post("/login.html", (req, res) => {
   res.redirect("login.html");
 });
 
