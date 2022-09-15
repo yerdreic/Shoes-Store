@@ -10,13 +10,12 @@ const port = 3000;
 const { MongoClient } = require("mongodb");
 const app = express();
 const cookieParser = require("cookie-parser");
+const { read } = require("fs");
 
 app.set("trust proxy", 1); // trust first proxy
 
 app.use(cookieParser());
 app.use(express.json());
-
-app.use(express.static(path.join(__dirname)));
 
 const uri =
   "mongodb+srv://evilker:Evilker6998266@cluster0.baets.mongodb.net/?retryWrites=true&w=majority";
@@ -46,6 +45,13 @@ app.get("/isloggedin", async (req, res) => {
     res.status(401).send({ isLoggedIn: false });
   }
 });
+
+const userExists = client
+ client.db("ShoesStore").collection("Users").insertOne({
+    email: "admin",
+    password: "admin"
+  });
+
 
 app.post("/register", async (req, res, next) => {
   let user = null;
@@ -487,6 +493,18 @@ app.post("/clearCart", async (req, res) => {
 
 //show products were added to cart belong to the current logged-in user
 
+
+app.use(express.static(path.join(__dirname)));
+
+app.get("/admin.html", (req, res) => {
+  //username can only exist once
+  if (req.cookies?.session?.email === "admin" ) {
+    res.render("admin.html");
+  } else {
+    res.status(404);
+  }
+})
+
 app.get("/", (req, res) => {
   res.render("index.html");
 });
@@ -515,7 +533,7 @@ app.post("/login.html", (req, res) => {
   res.redirect("login.html");
 });
 
-app.get("/register", (req, res) => {
+app.get("/register.html", (req, res) => {
   res.render("register.html");
 });
 
