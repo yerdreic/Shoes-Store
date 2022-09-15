@@ -37,7 +37,7 @@ app.get("/isloggedin", async (req, res) => {
   if (req.cookies?.session?.email && req.cookies?.session?.userID) {
     let userCookie = req.cookies.session;
     console.log("user cookie from /isloggedin:", userCookie);
-    
+
     res.status(200).send({ isLoggedIn: true, userCookie });
   } else {
     //req.cookies.session = [];
@@ -46,39 +46,26 @@ app.get("/isloggedin", async (req, res) => {
   }
 });
 
-const userExists = client
- client.db("ShoesStore").collection("Users").insertOne({
-    email: "admin",
-    password: "admin"
-  });
-
-
 app.post("/register", async (req, res, next) => {
-  let user = null;
   console.log("in register in server");
+  let email = req.body.email;
+  let password = req.body.password;
 
   try {
     let foundEmailInDB = await client
       .db("ShoesStore")
       .collection("Users")
-      .findOne({ $or: [{ email: req.body.email }, { password: null }] });
+      .findOne({ email: email });
 
     if (foundEmailInDB) {
       console.log("USER: ", foundEmailInDB);
       return res.status(200).send({ emailExists: true });
     } else {
-      user = {
-        email: req.body.email,
-        password: req.body.password,
-      };
-    }
-
-    if (user !== null) {
       await client
         .db("ShoesStore")
         .collection("Users")
-        .insertOne({ user })
-        .then((newUserAfterInsert) => {
+        .insertOne({ email: email, password: password })
+        .then(() => {
           return res.status(200).json({ newUserWasAdded: true });
         });
     }
@@ -100,7 +87,7 @@ app.post("/login", async (req, res, _next) => {
     let userFromDB = await client
       .db("ShoesStore")
       .collection("Users")
-      .findOne({ $or: [{ email: user.email }, { password: user.password }] });
+      .findOne({ email: user.email });
 
     console.log("USER: ", userFromDB);
 
@@ -112,7 +99,7 @@ app.post("/login", async (req, res, _next) => {
     if (user.password === userFromDB.password) {
       // fully logged in
       let loggedInUserID = userFromDB._id;
-      //rememberme was checked - remember for 30 days
+      //rememberme wasn't checked
 
       if (req.body.rememberMe === false) {
         console.log("remember me is false");
@@ -493,17 +480,17 @@ app.post("/clearCart", async (req, res) => {
 
 //show products were added to cart belong to the current logged-in user
 
-
 app.use(express.static(path.join(__dirname)));
 
-app.get("/admin.html", (req, res) => {
-  //username can only exist once
-  if (req.cookies?.session?.email === "admin" ) {
-    res.render("admin.html");
+app.use("/admin", (req, res) => {
+  //username can only exist once so only 1 admin
+  if (req.cookies?.session?.email === "admin") {
+    console.log("cookies from admin:", req.cookies.session);
+    res.redirect("admin.html");
   } else {
     res.status(404);
   }
-})
+});
 
 app.get("/", (req, res) => {
   res.render("index.html");
