@@ -8,14 +8,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="about.css">
     <link rel="stylesheet" href="./navbar.css">
-    <script type="text/javascript" src="app.js" async></script>
+    <script type="text/javascript" src="app.js"></script>
+    <script type="text/javascript" async>
+      window.addEventListener("load", async () => {
+        await setNavBar();
+      })
+    </script>
+  
     <script src="https://kit.fontawesome.com/dbed6b6114.js" crossorigin="anonymous"></script>
 </head>
 
 <body>
     <div class="navbar">
         <nav id="nav">
-            <ul>
+            <ul id="navElem">
                 <li><a href="./index.html">Home</a></li>
                 <li><a href="./catalog.html">Catalog</a></li>
                 <li><a href="./about.html">About Us</a></li>
