@@ -25,8 +25,13 @@ const setNavBar = async () => {
       // logged in
       let email = jsonRes.userCookie.email;
       let userName;
-      if (email === "admin" || !email.includes("@")) {
+      if (!email.includes("@")) {
         userName = email;
+        if (email === "admin") {
+          const adminLine = document.createElement("li");
+          adminLine.innerHTML = '<a href="./admin">Admin</a>';
+          nav.appendChild(adminLine);
+        }
       } else {
         userName = email.substring(0, email.indexOf("@"));
       }
