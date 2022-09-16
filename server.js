@@ -7,74 +7,72 @@ const path = require("path");
 const hostname = "127.0.0.1";
 const fileUpload = require("express-fileupload");
 const port = 3000;
-const { MongoClient } = require("mongodb");
 const app = express();
+const { MongoClient } = require("mongodb");
+module.exports = MongoClient;
 const cookieParser = require("cookie-parser");
-
+const {
+  findOneUserInDB,
+  insertOneUserToDB,
+  insertOneEventToDB,
+  insertOneProductToDB,
+  findOneProductInDB,
+  deleteOneProductInDB,
+  findUsersViaRegex,
+  findProductViaRegex,
+  findEventsInDB,
+  findEventsViaRegex,
+} = require("./persist.js");
 app.set("trust proxy", 1); // trust first proxy
 
 app.use(cookieParser());
 app.use(express.json());
 
-app.use(express.static(path.join(__dirname)));
+// const uri =
+//   "mongodb+srv://evilker:Evilker6998266@cluster0.baets.mongodb.net/?retryWrites=true&w=majority";
 
-const uri =
-  "mongodb+srv://evilker:Evilker6998266@cluster0.baets.mongodb.net/?retryWrites=true&w=majority";
+// const client = new MongoClient(uri);
 
-const client = new MongoClient(uri);
+// async function main() {
+//   try {
+//     await client.connect();
+//     console.log("DB is connected");
+//   } catch (e) {
+//     console.log(e);
+//   }
+// }
 
-async function main() {
-  try {
-    await client.connect();
-    console.log("DB is connected");
-  } catch (e) {
-    console.log(e);
-  }
-}
-
-main().catch(console.error);
+// main().catch(console.error);
 
 app.get("/isloggedin", async (req, res) => {
   if (req.cookies?.session?.email && req.cookies?.session?.userID) {
     let userCookie = req.cookies.session;
     console.log("user cookie from /isloggedin:", userCookie);
-    
+
     res.status(200).send({ isLoggedIn: true, userCookie });
   } else {
-    //req.cookies.session = [];
     res.clearCookie("session");
     res.status(401).send({ isLoggedIn: false });
   }
 });
 
 app.post("/register", async (req, res, next) => {
-  let user = null;
   console.log("in register in server");
+  let email = req.body.email;
+  let password = req.body.password;
 
   try {
-    let foundEmailInDB = await client
-      .db("ShoesStore")
-      .collection("Users")
-      .findOne({ $or: [{ email: req.body.email }, { password: null }] });
+    let foundEmailInDB = await findOneInDB("Users", email);
 
     if (foundEmailInDB) {
       console.log("USER: ", foundEmailInDB);
       return res.status(200).send({ emailExists: true });
     } else {
-      user = {
-        email: req.body.email,
-        password: req.body.password,
-      };
-    }
+      let insertToDB = await insertOneUserToDB(email, password);
 
-    if (user !== null) {
-      await client
-        .db("ShoesStore")
-        .collection("Users")
-        .insertOne({ user })
-        .then((newUserAfterInsert) => {
-          return res.status(200).json({ newUserWasAdded: true });
-        });
+      if (insertToDB) {
+        return res.status(200).json({ newUserWasAdded: true });
+      }
     }
   } catch (error) {
     console.log("ERR: ", error);
@@ -84,17 +82,11 @@ app.post("/register", async (req, res, next) => {
 });
 
 app.post("/login", async (req, res, _next) => {
-  user = {
-    email: req.body.email,
-    password: req.body.password,
-  };
+  let email = req.body.email;
+  let password = req.body.password;
 
   try {
-    //user was found in db - return it's id
-    let userFromDB = await client
-      .db("ShoesStore")
-      .collection("Users")
-      .findOne({ $or: [{ email: user.email }, { password: user.password }] });
+    let userFromDB = await findOneUserInDB(email);
 
     console.log("USER: ", userFromDB);
 
@@ -103,16 +95,15 @@ app.post("/login", async (req, res, _next) => {
       res.status(200).json({ emailExists: false, passwordExists: false });
     }
 
-    if (user.password === userFromDB.password) {
+    if (password === userFromDB.password) {
       // fully logged in
       let loggedInUserID = userFromDB._id;
-      //rememberme was checked - remember for 30 days
-
+      //rememberme wasn't checked
       if (req.body.rememberMe === false) {
         console.log("remember me is false");
         res.cookie(
           "session",
-          { userID: loggedInUserID, email: user.email },
+          { userID: loggedInUserID, email: email },
           { maxAge: 1800000 }
         );
         //rememberme was checked
@@ -120,17 +111,14 @@ app.post("/login", async (req, res, _next) => {
         console.log("remember me is true");
         res.cookie(
           "session",
-          { userID: loggedInUserID, email: user.email },
+          { userID: loggedInUserID, email: email },
           { maxAge: 2592000000 }
         );
       }
       //insert event of logging in to the events
-      await client
-        .db("ShoesStore")
-        .collection("Events")
-        .insertOne({ login: user.email });
-
-      res.status(200).json({ emailExists: true, passwordExists: true });
+      await insertOneEventToDB("login", email).then(
+        res.status(200).json({ emailExists: true, passwordExists: true })
+      );
     }
   } catch (error) {
     console.log("ERR: ", error);
@@ -153,24 +141,18 @@ app.post("/addNewProductToDB", async (req, res, next) => {
   const img = addtoBase64 + imgAsBase64;
 
   try {
-    let nameAlreadyExist = await client
-      .db("ShoesStore")
-      .collection("Products")
-      .findOne({ name: req.body.itemName });
+    let nameAlreadyExist = await findOneProductInDB("name", req.body.itemName);
 
     if (nameAlreadyExist) {
       console.log("product: ", nameAlreadyExist);
       return res.status(200).send({ nameAlreadyExist: true });
     }
 
-    let newProductAfterInsert = await client
-      .db("ShoesStore")
-      .collection("Products")
-      .insertOne({
-        name: req.body.itemName,
-        price: req.body.itemPrice,
-        image: img,
-      });
+    let newProductAfterInsert = await insertOneProductToDB(
+      req.body.itemName,
+      req.body.itemPrice,
+      img
+    );
 
     if (newProductAfterInsert) {
       return res.status(200).json({ newProductWasAdded: true });
@@ -188,19 +170,13 @@ app.post("/removeProductFromDB", async (req, res, next) => {
   let product = null;
   console.log("in removeProductFromDB from server");
   try {
-    let nameExistsInDB = await client
-      .db("ShoesStore")
-      .collection("Products")
-      .findOne({ name: req.body.name });
+    let nameExistsInDB = await findOneProductInDB("_id", req.body.itemName);
 
     if (!nameExistsInDB) {
       console.log("product: ", nameExistsInDB);
       return res.status(200).send({ nameExistsInDB: false });
     } else {
-      let deleteProduct = await client
-        .db("ShoesStore")
-        .collection("Products")
-        .deleteOne({ name: req.body.name });
+      let deleteProduct = await deleteOneProductInDB(req.body.name);
 
       if (deleteProduct) {
         return res.status(200).json({ productWasDeleted: true });
@@ -217,18 +193,14 @@ app.post("/removeProductFromDB", async (req, res, next) => {
 app.post("/addItemToCart", async (req, res, _next) => {
   //if item already in cart - update it's quantity
   let productId = req.body.productId;
-  let user = req.body.user;
+  // let user = req.body.user;
   console.log("productId from server:", productId);
 
   const objProductId = new BSON.ObjectId(productId);
-  const objUserId = new BSON.ObjectId(user._id);
   console.log("objproductId from server:", objProductId);
 
   try {
-    let productFromDB = await client
-      .db("ShoesStore")
-      .collection("Products")
-      .findOne({ _id: objProductId });
+    let productFromDB = await findOneProductInDB("_id", objProductId);
 
     if (!productFromDB) {
       throw new Error("No result about this product");
@@ -286,13 +258,10 @@ app.post("/addItemToCart", async (req, res, _next) => {
 //adds item to cart for a user
 app.post("/removeItemFromCart", async (req, res, _next) => {
   //if item already in cart - update it's quantity
-  itemName = req.body.itemName;
+  let itemName = req.body.itemName;
 
   try {
-    let productFromDB = await client
-      .db("ShoesStore")
-      .collection("Products")
-      .findOne({ name: itemName });
+    let productFromDB = await findOneProductInDB("name", itemName);
 
     if (!productFromDB) {
       throw new Error("No result about this user");
@@ -325,34 +294,19 @@ app.post("/getUsersFromDB", async (req, res, _next) => {
     //user was found in db - return it's id
 
     if (searchVal === null || searchVal === "") {
-      await client
-        .db("ShoesStore")
-        .collection("Users")
-        .find({})
-        .toArray()
-        .then((usersFromDB) => {
-          console.log("users: ", usersFromDB);
-          res.status(200).json({ usersFromDB });
-        });
+      await findOneUserInDB().then((usersFromDB) => {
+        console.log("users: ", usersFromDB);
+        res.status(200).json({ usersFromDB });
+      });
     } else {
-      await client
-        .db("ShoesStore")
-        .collection("Users")
-        .find({
-          $or: [
-            { email: { $regex: searchVal, $options: "i" } },
-            { password: null },
-          ],
-        })
-        .toArray()
-        .then((usersFromDB) => {
-          console.log("users: ", usersFromDB);
-          if (productsFromDB === null) {
-            res.status(200).json({ noResults: true });
-          } else {
-            res.status(200).json({ usersFromDB });
-          }
-        });
+      await findUsersViaRegex(searchVal).then((usersFromDB) => {
+        console.log("users: ", usersFromDB);
+        if (productsFromDB === null) {
+          res.status(200).json({ noResults: true });
+        } else {
+          res.status(200).json({ usersFromDB });
+        }
+      });
     }
   } catch (error) {
     console.log("ERR: ", error);
@@ -369,27 +323,12 @@ app.post("/getItemsFromDB", async (req, res, _next) => {
   try {
     //user was found in db - return it's id
     if (searchVal === null || searchVal === "") {
-      await client
-        .db("ShoesStore")
-        .collection("Products")
-        .find({})
-        .toArray()
-        .then((productsFromDB) => {
-          console.log("products: ", productsFromDB);
-          res.status(200).json({ productsFromDB });
-        });
+      await findOneProductInDB("noKey").then((productsFromDB) => {
+        console.log("products: ", productsFromDB);
+        res.status(200).json({ productsFromDB });
+      });
     } else {
-      let productsFromDB = await client
-        .db("ShoesStore")
-        .collection("Products")
-        .find({
-          $or: [
-            { name: { $regex: searchVal, $options: "i" } },
-            { price: null },
-            { image: null },
-          ],
-        })
-        .toArray();
+      let productsFromDB = await findProductViaRegex(searchVal);
 
       if (productsFromDB) {
         console.log("products: ", productsFromDB);
@@ -424,26 +363,12 @@ app.post("/getEventsFromDB", async (req, res) => {
   try {
     //user was found in db - return it's id
     if (searchVal === null || searchVal === "") {
-      await client
-        .db("ShoesStore")
-        .collection("Events")
-        .find({})
-        .toArray()
-        .then((eventsFromDB) => {
-          console.log("Events: ", eventsFromDB);
-          res.status(200).json({ eventsFromDB });
-        });
+      await findEventsInDB().then((eventsFromDB) => {
+        console.log("Events: ", eventsFromDB);
+        res.status(200).json({ eventsFromDB });
+      });
     } else {
-      await client
-        .db("ShoesStore")
-        .collection("Events")
-        .find({
-          $or: [
-            { login: { $regex: searchVal, $options: "i" } },
-            { logout: { $regex: searchVal, $options: "i" } },
-          ],
-        })
-        .toArray()
+      await findEventsViaRegex(searchVal)
         .then((eventsFromDB) => {
           console.log("events: ", eventsFromDB);
           if (eventsFromDB === null) {
@@ -487,6 +412,20 @@ app.post("/clearCart", async (req, res) => {
 
 //show products were added to cart belong to the current logged-in user
 
+
+app.get("/admin", (req, res) => {
+  //username can only exist once so only 1 admin
+  if (req.cookies?.session?.email === "admin") {
+    console.log("cookies from admin:", req.cookies.session);
+    res.redirect("../admin.html");
+  } else {
+    res.status(404).send("You don't have access to this page!");
+  }
+});
+
+app.use(express.static(path.join(__dirname)));
+
+
 app.get("/", (req, res) => {
   res.render("index.html");
 });
@@ -515,16 +454,14 @@ app.post("/login.html", (req, res) => {
   res.redirect("login.html");
 });
 
-app.get("/register", (req, res) => {
+app.get("/register.html", (req, res) => {
   res.render("register.html");
 });
 
 app.get("/logout", async (req, res) => {
+
   let loggedInUserEmail = req.cookies?.session.email;
-  await client
-    .db("ShoesStore")
-    .collection("Events")
-    .insertOne({ logout: loggedInUserEmail });
+  await insertOneEventToDB("logout", loggedInUserEmail);
 
   res.clearCookie("session");
   res.clearCookie("cart");

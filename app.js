@@ -24,7 +24,17 @@ const setNavBar = async () => {
     if (res.status === 200 && jsonRes.isLoggedIn === true) {
       // logged in
       let email = jsonRes.userCookie.email;
-      let userName = email.substring(0, email.indexOf("@"));
+      let userName;
+      if (!email.includes("@")) {
+        userName = email;
+        if (email === "admin") {
+          const adminLine = document.createElement("li");
+          adminLine.innerHTML = '<a href="./admin">Admin</a>';
+          nav.appendChild(adminLine);
+        }
+      } else {
+        userName = email.substring(0, email.indexOf("@"));
+      }
       console.log("from app.js:", userName);
 
       const cartLine = document.createElement("li");
