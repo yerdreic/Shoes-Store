@@ -37,7 +37,7 @@ const getUsersFromDB = async (searchVal) => {
     window.alert("RES.JSON is failed!!");
 
     setTimeout(() => {
-      letRedirect("/redirectHome");
+      letRedirect("/admin");
     }, 1000);
   }
 };
@@ -90,7 +90,7 @@ const getLoginLogoutEvents = async (searchVal) => {
     window.alert("RES.JSON is failed!!");
 
     setTimeout(() => {
-      letRedirect("/redirectHome");
+      letRedirect("/admin");
     }, 1000);
   }
 };
@@ -160,7 +160,7 @@ const getProductsFromDB = async () => {
     window.alert("RES.JSON is failed!!");
 
     setTimeout(() => {
-      letRedirect("/redirectHome");
+      letRedirect("/admin");
     }, 1000);
   }
 };
@@ -201,7 +201,7 @@ const onClickAddNewProductEventHandler = async () => {
         "Your new product was added to DB! You can now see it in the catalog!\n Please refresh the page"
       );
       setTimeout(() => {
-        letRedirect("/redirectAdmin");
+        letRedirect("/admin");
       }, 1000);
     }
   } catch (error) {
@@ -209,17 +209,17 @@ const onClickAddNewProductEventHandler = async () => {
     window.alert("Something went wrong.. Please refresh the page");
 
     setTimeout(() => {
-      letRedirect("/redirectAdmin");
+      letRedirect("/admin");
     }, 1000);
   }
 };
 
-const onClickRemoveProductEventHandler = async (productName) => {
-  console.log("product:", productName);
+const onClickRemoveProductEventHandler = async (itemName) => {
+  console.log("product:", itemName);
   try {
     let res = await fetch(`/removeProductFromDB`, {
       body: JSON.stringify({
-        name: productName,
+        name: itemName,
       }),
       cache: "no-cache",
       method: "DELETE",
@@ -235,7 +235,7 @@ const onClickRemoveProductEventHandler = async (productName) => {
     if (res.productWasDeleted === true) {
       window.alert("Product was deleted from db");
       setTimeout(() => {
-        letRedirect("/admin.html");
+        letRedirect("/admin");
       }, 1000);
     }
   } catch (error) {
@@ -243,7 +243,7 @@ const onClickRemoveProductEventHandler = async (productName) => {
     window.alert("Something went wrong.. Please try again");
 
     setTimeout(() => {
-      letRedirect("/admin.html");
+      letRedirect("/admin");
     }, 1000);
   }
 };

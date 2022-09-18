@@ -78,19 +78,19 @@ const insertOneUserToDB = async (...params) => {
   return ans;
 };
 
-const findOneProductInDB = async (key, ...params) => {
+const findOneProductInDB = async (key, param) => {
   let ans;
 
   if (key === "name") {
     ans = await client
       .db("ShoesStore")
       .collection("Products")
-      .findOne({ name: params[0] });
+      .findOne({ name: param });
   } else if (key === "_id") {
     ans = await client
       .db("ShoesStore")
       .collection("Products")
-      .findOne({ _id: params[0] });
+      .findOne({ _id: param });
   } else if (key === "noKey") {
     ans = await client
       .db("ShoesStore")
@@ -117,14 +117,10 @@ const findProductViaRegex = async (searchVal) => {
 };
 
 const deleteOneProductInDB = async (param) => {
-  if (paramsCount === 1) {
-    ans = await client
+    return await client
       .db("ShoesStore")
       .collection("Products")
       .deleteOne({ name: param });
-  }
-
-  return ans;
 };
 
 const insertOneProductToDB = async (...params) => {
@@ -176,12 +172,12 @@ const insertOneEventToDB = async (...params) => {
       ans = await client
         .db("ShoesStore")
         .collection("Events")
-        .insertOne({ login: params[0] });
+        .insertOne({ login: params[1] });
     } else if (params[0] === "logout") {
       ans = await client
         .db("ShoesStore")
         .collection("Events")
-        .insertOne({ logout: params[0] });
+        .insertOne({ logout: params[1] });
     }
   }
 

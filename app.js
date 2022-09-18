@@ -1,7 +1,7 @@
 console.log("at app.js");
 
 const letRedirect = async (url) => {
-  await fetch(url, { method: "POST" })
+  await fetch(url, { method: "GET" })
     .then((response) => {
       if (response.redirected) {
         window.location.href = response.url;

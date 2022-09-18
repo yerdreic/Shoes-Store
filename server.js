@@ -62,7 +62,7 @@ app.post("/register", async (req, res, next) => {
   let password = req.body.password;
 
   try {
-    let foundEmailInDB = await findOneInDB("Users", email);
+    let foundEmailInDB = await findOneUserInDB("Users", email);
 
     if (foundEmailInDB) {
       console.log("USER: ", foundEmailInDB);
@@ -167,7 +167,7 @@ app.post("/addNewProductToDB", async (req, res, next) => {
 app.delete("/removeProductFromDB", async (req, res, next) => {
   console.log("in removeProductFromDB from server");
   try {
-    let nameExistsInDB = await findOneProductInDB("_id", req.body.itemName);
+    let nameExistsInDB = await findOneProductInDB("name", req.body.name);
 
     if (!nameExistsInDB) {
       console.log("product: ", nameExistsInDB);
@@ -427,27 +427,27 @@ app.get("/", (req, res) => {
   res.render("index.html");
 });
 
-app.post("/redirectHome", (req, res) => {
+app.get("/redirectHome", (req, res) => {
   res.redirect("index.html");
 });
 
-app.post("/redirectAdmin", (req, res) => {
+app.get("/redirectAdmin", (req, res) => {
   res.redirect("admin.html");
 });
 
-app.post("/successClearCart", (req, res) => {
+app.get("/successClearCart", (req, res) => {
   res.redirect("cart.html");
 });
 
-app.post("/successLogin", (req, res) => {
+app.get("/successLogin", (req, res) => {
   res.redirect("index.html");
 });
 
-app.post("/notSuccessLogin", (req, res) => {
+app.get("/notSuccessLogin", (req, res) => {
   res.redirect("login.html");
 });
 
-app.post("/login.html", (req, res) => {
+app.get("/login.html", (req, res) => {
   res.redirect("login.html");
 });
 
@@ -466,7 +466,7 @@ app.get("/logout", async (req, res) => {
   res.redirect("/index.html");
 });
 
-app.post("/backToCart", (req, res) => {
+app.get("/backToCart", (req, res) => {
   res.redirect("cart.html");
 });
 
