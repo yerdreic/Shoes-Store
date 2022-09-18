@@ -16,17 +16,17 @@ const onClearItemEventHandler = async (itemID) => {
 
       setTimeout(() => {
         letRedirect("/successClearCart");
-      }, 3000);
+      }, 1000);
     } else if (res.productWasRemovedFromCart) {
       window.alert("Item was successfully deleted");
 
       setTimeout(() => {
         letRedirect("/successClearCart");
-      }, 3000);
+      }, 1000);
     } else {
       setTimeout(() => {
         letRedirect("/successClearCart");
-      }, 3000);
+      }, 1000);
     }
   } catch (error) {
     console.log("err ", error);
@@ -34,7 +34,7 @@ const onClearItemEventHandler = async (itemID) => {
 
     setTimeout(() => {
       letRedirect("/redirectHome");
-    }, 3000);
+    }, 1000);
   }
 };
 
@@ -180,7 +180,7 @@ const renderItemsInCart = async () => {
 
         setTimeout(() => {
           letRedirect("/notSuccessLogin");
-        }, 3000);
+        }, 1000);
       }
     }
   } catch (error) {
