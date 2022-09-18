@@ -61,7 +61,7 @@ const setNavBar = async () => {
 
     setTimeout(() => {
       letRedirect("/notSuccessLogin");
-    }, 3000);
+    }, 1000);
   }
 };
 
@@ -101,7 +101,7 @@ const onClickLoginEventHandler = async () => {
 
       setTimeout(() => {
         letRedirect("/notSuccessLogin");
-      }, 3000);
+      }, 1000);
     }
   } catch (error) {
     console.log("errr ", error);
@@ -109,7 +109,7 @@ const onClickLoginEventHandler = async () => {
 
     setTimeout(() => {
       letRedirect("/notSuccessLogin");
-    }, 3000);
+    }, 1000);
   }
 };
 
@@ -135,7 +135,7 @@ const onClickRegisterEventHandler = async () => {
 
       setTimeout(() => {
         letRedirect(`/notSuccessLogin`);
-      }, 3000);
+      }, 1000);
     }
 
     if (res.newUserWasAdded === true) {
@@ -143,7 +143,7 @@ const onClickRegisterEventHandler = async () => {
 
       setTimeout(() => {
         letRedirect(`/successLogin`);
-      }, 3000);
+      }, 1000);
     }
   } catch (error) {
     console.log("ERR ", error);
@@ -151,6 +151,6 @@ const onClickRegisterEventHandler = async () => {
 
     setTimeout(() => {
       letRedirect("/redirectHome");
-    }, 3000);
+    }, 1000);
   }
 };

@@ -38,7 +38,7 @@ const getUsersFromDB = async (searchVal) => {
 
     setTimeout(() => {
       letRedirect("/redirectHome");
-    }, 3000);
+    }, 1000);
   }
 };
 
@@ -91,7 +91,7 @@ const getLoginLogoutEvents = async (searchVal) => {
 
     setTimeout(() => {
       letRedirect("/redirectHome");
-    }, 3000);
+    }, 1000);
   }
 };
 
@@ -161,7 +161,7 @@ const getProductsFromDB = async () => {
 
     setTimeout(() => {
       letRedirect("/redirectHome");
-    }, 3000);
+    }, 1000);
   }
 };
 
@@ -202,7 +202,7 @@ const onClickAddNewProductEventHandler = async () => {
       );
       setTimeout(() => {
         letRedirect("/redirectAdmin");
-      }, 3000);
+      }, 1000);
     }
   } catch (error) {
     console.log("errr ", error);
@@ -210,7 +210,7 @@ const onClickAddNewProductEventHandler = async () => {
 
     setTimeout(() => {
       letRedirect("/redirectAdmin");
-    }, 3000);
+    }, 1000);
   }
 };
 
@@ -236,7 +236,7 @@ const onClickRemoveProductEventHandler = async (productName) => {
       window.alert("Product was deleted from db");
       setTimeout(() => {
         letRedirect("/admin.html");
-      }, 3000);
+      }, 1000);
     }
   } catch (error) {
     console.log("errr ", error);
@@ -244,6 +244,6 @@ const onClickRemoveProductEventHandler = async (productName) => {
 
     setTimeout(() => {
       letRedirect("/admin.html");
-    }, 3000);
+    }, 1000);
   }
 };

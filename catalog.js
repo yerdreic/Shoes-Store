@@ -116,7 +116,7 @@ const sendDataFromSearch = async (searchVal) => {
 
     setTimeout(() => {
       letRedirect("/redirectHome");
-    }, 3000);
+    }, 1000);
   }
 };
 
@@ -150,7 +150,7 @@ const addedItemToCartEventHandler = async (productId) => {
 
       setTimeout(() => {
         letRedirect("/login.html");
-      }, 3000);
+      }, 1000);
     };
 
   } catch {
@@ -160,7 +160,7 @@ const addedItemToCartEventHandler = async (productId) => {
 
       setTimeout(() => {
         letRedirect("/login.html");
-      }, 3000);
+      }, 1000);
     };
   }
 };
