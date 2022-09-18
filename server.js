@@ -134,8 +134,6 @@ app.use(
 );
 
 app.post("/addNewProductToDB", async (req, res, next) => {
-  console.log("in adingNewProductToDB from server, name:".name);
-
   const imgAsBase64 = req.files ? req.files.file.data.toString("base64") : "";
   const addtoBase64 = "data:image/jpeg;charset=utf-8;base64,";
   const img = addtoBase64 + imgAsBase64;
@@ -166,8 +164,7 @@ app.post("/addNewProductToDB", async (req, res, next) => {
   }
 });
 
-app.post("/removeProductFromDB", async (req, res, next) => {
-  let product = null;
+app.delete("/removeProductFromDB", async (req, res, next) => {
   console.log("in removeProductFromDB from server");
   try {
     let nameExistsInDB = await findOneProductInDB("_id", req.body.itemName);

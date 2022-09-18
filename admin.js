@@ -222,7 +222,7 @@ const onClickRemoveProductEventHandler = async (productName) => {
         name: productName,
       }),
       cache: "no-cache",
-      method: "POST",
+      method: "DELETE",
       headers: { "Content-Type": "application/json" },
     });
 
