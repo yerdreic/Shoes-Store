@@ -10,7 +10,7 @@ const getUsersFromDB = async (searchVal) => {
   try {
     let res = await fetch("/getUsersFromDB", {
       body: JSON.stringify({ searchVal }),
-      method: "POST",
+      method: "GET",
       headers: { "Content-Type": "application/json" },
     });
 

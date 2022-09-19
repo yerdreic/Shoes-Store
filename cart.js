@@ -4,7 +4,7 @@ const onClearItemEventHandler = async (itemID) => {
   try {
     let res = await fetch("/clearCart", {
       body: JSON.stringify({ itemID }),
-      method: "POST",
+      method: "DELETE",
       headers: { "Content-Type": "application/json" },
     });
 

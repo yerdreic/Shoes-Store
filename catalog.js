@@ -144,15 +144,12 @@ const addedItemToCartEventHandler = async (productId) => {
     }
 
     if (loggedIn.isLoggedIn === false) {
-      window.alert(
-        "You must login in order to add this item to cart!"
-      );
+      window.alert("You must login in order to add this item to cart!");
 
       setTimeout(() => {
         letRedirect("/login.html");
       }, 1000);
-    };
-
+    }
   } catch {
     (error) => {
       console.log("ERR: ", error);

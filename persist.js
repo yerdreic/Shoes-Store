@@ -135,7 +135,7 @@ const insertOneProductToDB = async (...params) => {
     ans = await client
       .db("ShoesStore")
       .collection("Products")
-      .insertOne({ name: params[0], price: params[1], image: params[3] });
+      .insertOne({ name: params[0], price: params[1], image: params[2] });
   }
 
   return ans;

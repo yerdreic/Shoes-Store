@@ -283,7 +283,7 @@ app.post("/removeItemFromCart", async (req, res, _next) => {
   }
 });
 
-app.post("/getUsersFromDB", async (req, res, _next) => {
+app.get("/getUsersFromDB", async (req, res, _next) => {
   let searchVal = req.body.searchVal;
   console.log("search value from server:", searchVal);
 
@@ -382,7 +382,7 @@ app.post("/getEventsFromDB", async (req, res) => {
   }
 });
 
-app.post("/clearCart", async (req, res) => {
+app.delete("/clearCart", async (req, res) => {
   console.log("cookies", req.cookies?.cart);
   let itemID = req.body.itemID;
 
