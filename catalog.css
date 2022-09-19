@@ -17,15 +17,54 @@
 
 h3 {
   padding: 8px;
-  background-color: #e1e7ec;
+  /* background-color: #e1e7ec; */
   display: inline-block;
   padding: 5px;
   margin: 10px;
+  white-space:nowrap;
+    position:relative;
+    margin:0 5px 0 10px;
+    displaY:inline-block;
+    height:25px;
+    border-radius: 0 5px 5px 0;
+    padding: 0 25px 0 15px;
+    background:#E8EDF0;
+    border: 0 solid #C7D2D4;
+    border-top-width:1px;
+    border-bottom-width:1px;
+    color:#999;
+    line-height:23px;
+}
+
+h3:after{
+  position:absolute;
+  right:0;
+  margin:1px 7px;
+  font-weight:bold;
+  font-size:19px;
+  color: white;
+}
+
+h3:before{
+  position:absolute;
+  content:"\25CF";
+  color:white;
+  text-shadow: 0 0 1px white;
+  font-size:11px;
+  line-height:0px;
+  text-indent:12px;
+  left:-15px;
+  width: 1px;
+  height:0px;
+  border-right:14px solid #E8EDF0;
+  border-top:  13px solid transparent;
+  border-bottom:  13px solid transparent;
 }
 
 h1.text-center.text-muted {
   margin: 30px;
   text-decoration: underline;
+  color: whitesmoke;
 }
 
 
@@ -61,6 +100,13 @@ h1.text-center.text-muted {
 
 .single-product h1.h1-variant-2 {
   margin-bottom: 40px;
+}
+
+h1.text-center.text-muted {
+  margin: 30px;
+  text-decoration: underline;
+  font-family: Qicksand;
+  font-size: -webkit-xxx-large;
 }
 
 .single-product .caption:before {
@@ -157,7 +203,7 @@ h1.text-center.text-muted {
   font-family: Montserrat, sans-serif;
   font-weight: 700;
   letter-spacing: 0.02em;
-  color: #2b2f3e;
+  color: white;
 
 }
 
@@ -172,6 +218,7 @@ h1.text-center.text-muted {
 lable#searchbtn {
   padding: 10px;
   background-color: white;
+  border-radius: .5rem;
 }
 
 .quantity {
@@ -218,11 +265,11 @@ lable#searchbtn {
 body {
   place-items: center;
   min-height: 100vh;
-  background-color: orange;
+  background-image: url(images/nikeh.jfif);
 }
 
 button {
-  background-color: #fff;
+  background-color: #FF6600;
   border: none;
   font-size: 1.1rem;
   border-radius: .5rem;
@@ -353,8 +400,10 @@ span {
 
 .search-wrapper {
   float: right;
-  background-color: rgb(246, 124, 24);
+  background-color:#FF6600;
   padding: 20px;
+  border-radius: .5rem;
+
 }
 
 
@@ -377,7 +426,7 @@ span {
   /* Remove borders */
   outline: none;
   /* Remove outline */
-  background-color: rgb(246, 124, 24);
+  background-color:#FF6600;
   /* Set a background color */
   color: white;
   /* Text color */
@@ -394,4 +443,12 @@ span {
 #myBtn:hover {
   background-color: #555;
   /* Add a dark-grey background on hover */
+}
+
+Items.container {
+  display: flex;
+  justify-items: center;
+  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: stretch;
 }
